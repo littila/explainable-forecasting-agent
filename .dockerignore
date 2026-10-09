@@ -1,0 +1,12 @@
+.git/
+.venv/
+.env
+.cache/
+units
+runs/
+docs/
+scripts/
+.github/
+**/__pycache__/
+**/*.pyc
+solution/tests/

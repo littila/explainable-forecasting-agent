@@ -1,0 +1,38 @@
+[project]
+name = "explainable-forecasting-agent"
+version = "1.0.0"
+description = "An LLM agent that forecasts labels and values with 90% intervals from frozen financial document corpora, each number traced to a computation or a quoted passage. Agenthon 2026, Track 4: Explainability."
+readme = "README.md"
+license = "MIT"
+requires-python = ">=3.13"
+authors = [{ name = "Zhanibek" }]
+# The agent's whole runtime, pinned as in the submission image (solution/requirements.txt).
+dependencies = [
+  "openai==3.16.2",
+  "pydantic==2.13.5",
+  "jsonschema==4.26.0",
+  "tokenizers==0.23.2",
+]
+
+[dependency-groups]
+# The organisers' scorer and toolkit: the tests check the agent's rules against their code.
+dev = [
+  "pytest>=8",
+  "ruff>=0.16",
+  "qfbench2-track-analysis",
+  "qfbench2-common",
+]
+
+[tool.uv]
+package = false
+
+[tool.uv.sources]
+qfbench2-track-analysis = { git = "https://github.com/Agenthon-2026/track4-analysis-public", rev = "1c744e1d6725340643a533f436517d72b53ca0e1" }
+qfbench2-common = { git = "https://github.com/Agenthon-2026/Agenthon2026-public.git", subdirectory = "common", rev = "v2.5.1" }
+
+[tool.pytest.ini_options]
+testpaths = ["solution/tests"]
+
+[tool.ruff]
+line-length = 120
+target-version = "py313"

@@ -1,0 +1,1042 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Track 4 Agent Guide</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Newsreader:opsz,wght@6..72,400;6..72,500;6..72,600&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+:root{
+  color-scheme: light;
+  --bg:#F3F5F7; --surface:#FFFFFF; --ink:#1A2129; --muted:#5B6672; --rule:#D5DBE1;
+  --accent:#0F5E8A; --accent-soft:#E3EEF5;
+  --model:#8A5A00; --model-soft:#F6EDDA;
+  --pass:#1F7A4D; --pass-soft:#E1F1E8; --fail:#B23A2C; --fail-soft:#F6E3E0;
+  --code-bg:#EAEEF2; --mark:#FFE9A8;
+  --display:"Newsreader",Georgia,"Times New Roman",serif;
+  --body:"IBM Plex Sans","Helvetica Neue",Arial,sans-serif;
+  --mono:"IBM Plex Mono",Menlo,Consolas,monospace;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  color-scheme: dark;
+  --bg:#13181D; --surface:#1A2128; --ink:#E4E9EE; --muted:#93A0AC; --rule:#2A333C;
+  --accent:#6FB4DC; --accent-soft:#16303F;
+  --model:#E2B357; --model-soft:#3A2D12;
+  --pass:#4EC38A; --pass-soft:#163526; --fail:#EA7B6B; --fail-soft:#3B1F1B;
+  --code-bg:#202830; --mark:#5A4A12;}}
+:root[data-theme="dark"]{
+  color-scheme: dark;
+  --bg:#13181D; --surface:#1A2128; --ink:#E4E9EE; --muted:#93A0AC; --rule:#2A333C;
+  --accent:#6FB4DC; --accent-soft:#16303F;
+  --model:#E2B357; --model-soft:#3A2D12;
+  --pass:#4EC38A; --pass-soft:#163526; --fail:#EA7B6B; --fail-soft:#3B1F1B;
+  --code-bg:#202830; --mark:#5A4A12;}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+@media (prefers-reduced-motion: reduce){html{scroll-behavior:auto}}
+body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.6 var(--body);-webkit-font-smoothing:antialiased}
+a{color:var(--accent)}
+a:focus-visible,button:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+code,.mono{font-family:var(--mono);font-size:.92em}
+p code,li code,td code,dd code{background:var(--code-bg);padding:.12em .4em;border-radius:3px}
+.page{display:grid;grid-template-columns:200px minmax(0,1fr);gap:56px;max-width:1180px;margin:0 auto;padding-inline:28px;padding-block:40px 80px}
+nav.toc{position:sticky;top:calc(env(safe-area-inset-top,0px) + 28px);align-self:start;font-size:13px}
+.toc .label{font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin:0 0 10px}
+.toc ol{list-style:none;margin:0;padding:0;display:grid;gap:2px}
+.toc a{display:block;padding:4px 0 4px 10px;border-left:2px solid var(--rule);color:var(--muted);text-decoration:none}
+.toc a:hover{color:var(--ink);border-left-color:var(--accent)}
+.toc .sub a{padding-left:20px;font-size:12.5px}
+main{min-width:0}
+header.hero{display:grid;gap:14px;padding-bottom:28px;border-bottom:1px solid var(--rule)}
+.eyebrow{font-family:var(--mono);font-size:12px;letter-spacing:.04em;color:var(--muted)}
+h1{font-family:var(--display);font-weight:500;font-size:44px;line-height:1.08;margin:0;text-wrap:balance;letter-spacing:-.01em}
+.lead{font-size:17px;line-height:1.6;max-width:68ch;margin:0}
+.facts{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:1px;background:var(--rule);border:1px solid var(--rule);border-radius:6px;overflow:hidden;margin-top:8px}
+.facts div{background:var(--surface);padding:12px 14px}
+.facts b{display:block;font-family:var(--mono);font-weight:500;font-size:18px;font-variant-numeric:tabular-nums}
+.facts span{font-size:12.5px;color:var(--muted)}
+section{padding-top:44px}
+h2{font-family:var(--display);font-weight:500;font-size:31px;line-height:1.15;margin:0 0 6px;text-wrap:balance}
+h2 small{display:block;font-family:var(--body);font-size:13px;font-weight:400;color:var(--muted);margin-top:6px;letter-spacing:0}
+h3{font-size:16.5px;font-weight:600;margin:28px 0 8px;text-wrap:balance}
+h4{font-size:13px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);margin:22px 0 8px}
+.prose{max-width:70ch}
+.prose p{margin:0 0 12px}
+.prose ul,.prose ol{margin:0 0 12px;padding-left:20px}
+.prose li{margin-bottom:4px}
+.note{font-size:13.5px;color:var(--muted)}
+.tw{overflow-x:auto;margin:14px 0 6px;border:1px solid var(--rule);border-radius:6px;background:var(--surface)}
+table{border-collapse:collapse;width:100%;font-size:14px}
+th,td{text-align:left;vertical-align:top;padding:8px 12px;border-bottom:1px solid var(--rule)}
+th{font-weight:600;font-size:12px;letter-spacing:.03em;color:var(--muted);background:var(--bg);white-space:nowrap}
+tr:last-child td{border-bottom:0}
+td.n,th.n{text-align:right;font-variant-numeric:tabular-nums;font-family:var(--mono);font-size:12.5px;white-space:nowrap}
+pre{font-family:var(--mono);font-size:12.5px;line-height:1.55;background:var(--code-bg);border-radius:6px;padding:12px 14px;margin:10px 0 14px;overflow-x:auto;white-space:pre}
+pre .hl{background:var(--mark);border-radius:2px}
+pre .dim{color:var(--muted)}
+.chip{display:inline-block;font-family:var(--mono);font-size:12px;font-weight:500;padding:3px 9px;border-radius:999px;white-space:nowrap;vertical-align:1px}
+.chip.code{background:var(--accent-soft);color:var(--accent)}
+.chip.model{background:var(--model-soft);color:var(--model)}
+.chip.pass{background:var(--pass-soft);color:var(--pass)}
+.chip.fail{background:var(--fail-soft);color:var(--fail)}
+.formula{font-family:var(--mono);font-size:13px;background:var(--surface);border:1px solid var(--rule);border-radius:6px;padding:12px 14px;margin:10px 0 14px;overflow-x:auto;white-space:pre;line-height:1.7}
+/* unit anatomy */
+.anatomy{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:18px;margin:16px 0}
+.anatomy .col{background:var(--surface);border:1px solid var(--rule);border-radius:6px;padding:14px 16px}
+.anatomy h3{margin-top:0}
+.anatomy dl{margin:0;display:grid;grid-template-columns:auto 1fr;gap:6px 14px;font-size:13.5px}
+.anatomy dt{font-family:var(--mono);font-size:12px;color:var(--accent);padding-top:2px;white-space:nowrap}
+.anatomy dd{margin:0}
+/* principles */
+.principles{display:grid;gap:0;margin-top:14px;border-top:1px solid var(--rule)}
+.principle{display:grid;grid-template-columns:2.2em minmax(0,1fr);gap:4px 14px;padding:16px 0;border-bottom:1px solid var(--rule)}
+.principle .k{font-family:var(--display);font-size:24px;color:var(--accent);line-height:1}
+.principle h3{margin:0 0 4px}
+.principle p{margin:0 0 6px;max-width:72ch}
+.principle .where{font-size:13px;color:var(--muted)}
+/* pipeline */
+.flow{margin:16px 0;border:1px solid var(--rule);border-radius:6px;background:var(--surface);overflow:hidden}
+.stage{display:grid;grid-template-columns:2.4em 13em 6.2em minmax(0,1fr);gap:12px;padding:11px 14px;border-bottom:1px solid var(--rule);align-items:baseline}
+.stage:last-child{border-bottom:0}
+.stage .num{font-family:var(--mono);font-size:12px;color:var(--muted)}
+.stage .name{font-weight:600}
+.stage .name code{display:block;font-weight:400;font-size:12px;color:var(--muted);background:none;padding:0}
+.stage .what{font-size:13.5px}
+.stage.model-stage{background:linear-gradient(90deg,var(--model-soft),transparent 40%)}
+.legend{display:flex;flex-wrap:wrap;gap:14px;font-size:13px;color:var(--muted);align-items:center}
+/* components */
+.comp{padding:22px 0;border-top:1px solid var(--rule)}
+.comp:first-of-type{border-top:0}
+.comp-head{display:flex;flex-wrap:wrap;align-items:baseline;gap:8px 14px}
+.comp-head h3{margin:0;font-family:var(--display);font-weight:500;font-size:22px}
+.comp-head .files{font-family:var(--mono);font-size:12px;color:var(--muted)}
+.comp dl{display:grid;grid-template-columns:7.5em minmax(0,1fr);gap:8px 18px;margin:12px 0 0;max-width:86ch}
+.comp dt{font-size:12px;letter-spacing:.07em;text-transform:uppercase;color:var(--muted);padding-top:3px}
+.comp dd{margin:0}
+.comp dd p{margin:0 0 8px}
+.comp dd ul{margin:0 0 8px;padding-left:18px}
+.consts{display:flex;flex-wrap:wrap;gap:6px}
+.consts span{font-family:var(--mono);font-size:12px;background:var(--code-bg);border-radius:4px;padding:4px 9px;white-space:nowrap}
+.consts span b{font-weight:500;color:var(--accent)}
+/* chart */
+.chart{background:var(--surface);border:1px solid var(--rule);border-radius:6px;padding:12px 8px 6px;margin:14px 0;overflow-x:auto}
+.chart svg{display:block;width:100%;min-width:560px;height:auto}
+.chart text{font-family:var(--mono);font-size:12px;fill:var(--muted)}
+.chart .val{fill:var(--ink);font-weight:500}
+.chart .grid{stroke:var(--rule);stroke-width:1}
+.chart .line{stroke:var(--accent);stroke-width:2;fill:none}
+.chart .dot{fill:var(--surface);stroke:var(--accent);stroke-width:2}
+.chart .dot.now{fill:var(--accent)}
+/* ablation bars */
+.abl{display:grid;grid-template-columns:minmax(10em,15em) minmax(0,1fr) 5.2em;gap:6px 14px;align-items:center;margin:14px 0;font-size:13.5px}
+.abl .track{position:relative;height:16px;background:linear-gradient(90deg,transparent calc(50% - 1px),var(--rule) calc(50% - 1px),var(--rule) calc(50% + 1px),transparent calc(50% + 1px))}
+.abl .bar{position:absolute;top:2px;height:12px;border-radius:2px}
+.abl .bar.neg{right:50%;background:var(--accent)}
+.abl .bar.pos{left:50%;background:var(--model)}
+.abl .v{font-family:var(--mono);font-size:12.5px;text-align:right;font-variant-numeric:tabular-nums}
+.abl .hd{font-size:12px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
+.abl .axis{display:flex;justify-content:space-between;font-family:var(--mono);font-size:12px;color:var(--muted)}
+/* walkthrough tabs */
+.tabs{display:flex;flex-wrap:wrap;gap:6px;margin:16px 0 0;border-bottom:1px solid var(--rule)}
+.tabs button{font:500 13.5px var(--body);color:var(--muted);background:none;border:0;border-bottom:2px solid transparent;padding:8px 12px;margin-bottom:-1px;cursor:pointer}
+.tabs button[aria-selected="true"]{color:var(--ink);border-bottom-color:var(--accent)}
+.tabs button:hover{color:var(--ink)}
+.panel{padding-top:18px}
+.strip{display:flex;flex-wrap:wrap;gap:8px 22px;font-size:13px;padding:12px 14px;background:var(--surface);border:1px solid var(--rule);border-radius:6px}
+.strip div{display:grid}
+.strip span{font-size:12px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
+.strip b{font-weight:500}
+.steps{counter-reset:s;list-style:none;padding:0;margin:16px 0 0}
+.steps > li{position:relative;padding:0 0 18px 34px;max-width:94ch}
+.steps > li::before{counter-increment:s;content:counter(s);position:absolute;left:0;top:1px;width:22px;height:22px;border-radius:50%;background:var(--accent-soft);color:var(--accent);font:500 12px/22px var(--mono);text-align:center}
+.steps > li > h3{margin:0 0 6px;font-size:15px}
+.steps p{margin:0 0 8px}
+.lesson{border:1px solid var(--rule);background:var(--surface);border-radius:6px;padding:12px 16px;margin-top:6px}
+.lesson b{font-family:var(--display);font-weight:500;font-size:17px}
+.hit{color:var(--pass);font-weight:600}
+.miss{color:var(--fail);font-weight:600}
+.pending{border:1px dashed var(--rule);border-radius:6px;padding:16px;color:var(--muted)}
+.glossary{display:grid;grid-template-columns:minmax(8em,12em) minmax(0,1fr);gap:8px 18px;margin:14px 0;font-size:14px;max-width:90ch}
+.glossary dt{font-weight:600}
+.glossary dd{margin:0}
+footer{margin-top:56px;padding-top:18px;border-top:1px solid var(--rule);font-size:12.5px;color:var(--muted)}
+@media (max-width: 960px){
+  .page{grid-template-columns:minmax(0,1fr);gap:24px;padding-inline:20px}
+  nav.toc{position:static;border-bottom:1px solid var(--rule);padding-bottom:14px}
+  .toc ol{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .toc .sub{display:none}
+  .facts{grid-template-columns:repeat(2,minmax(0,1fr))}
+}
+@media (max-width: 640px){
+  .page{padding-inline:16px;padding-block:24px 56px}
+  h1{font-size:34px}
+  h2{font-size:26px}
+  .anatomy{grid-template-columns:minmax(0,1fr)}
+  .stage{grid-template-columns:2em minmax(0,1fr);gap:4px 10px}
+  .stage .who{grid-column:2}
+  .stage .what{grid-column:2}
+  .comp dl{grid-template-columns:minmax(0,1fr);gap:2px}
+  .comp dt{padding-top:8px}
+  .abl{grid-template-columns:minmax(0,1fr) 4.6em}
+  .abl .track{grid-column:1 / -1;order:3}
+  .glossary{grid-template-columns:minmax(0,1fr);gap:2px}
+  .glossary dd{margin-bottom:8px}
+  .principle{grid-template-columns:minmax(0,1fr)}
+}
+</style>
+</head>
+<body>
+<div class="page">
+
+<nav class="toc" aria-label="Contents">
+  <p class="label">Contents</p>
+  <ol>
+    <li><a href="#task">What a unit asks</a></li>
+    <li><a href="#principles">Design principles</a></li>
+    <li><a href="#pipeline">The pipeline</a></li>
+    <li><a href="#components">Components</a></li>
+    <li class="sub"><a href="#c-load">Load and embargo</a></li>
+    <li class="sub"><a href="#c-render">The view</a></li>
+    <li class="sub"><a href="#c-data">Tables as data</a></li>
+    <li class="sub"><a href="#c-forecast">Forecast menu</a></li>
+    <li class="sub"><a href="#c-priors">Priors and two rules</a></li>
+    <li class="sub"><a href="#c-extract">Copies</a></li>
+    <li class="sub"><a href="#c-signals">Filing signals</a></li>
+    <li class="sub"><a href="#c-moves">Yield floor</a></li>
+    <li class="sub"><a href="#c-plan">Plan</a></li>
+    <li class="sub"><a href="#c-prompt">Prompt</a></li>
+    <li class="sub"><a href="#c-calls">Calls and samples</a></li>
+    <li class="sub"><a href="#c-reply">Reading replies</a></li>
+    <li class="sub"><a href="#c-cite">Citations, assembly</a></li>
+    <li class="sub"><a href="#c-reasons">Reasons</a></li>
+    <li class="sub"><a href="#c-entry">Entry and clock</a></li>
+    <li><a href="#evidence">What the evidence says</a></li>
+    <li><a href="#walkthroughs">Walkthroughs</a></li>
+    <li><a href="#limits">Limits and fixes</a></li>
+    <li><a href="#glossary">Glossary</a></li>
+  </ol>
+</nav>
+
+<main>
+<header class="hero">
+  <div class="eyebrow">Agenthon 2026 &#xB7; Track 4 Explainability &#xB7; build c5 &#xB7; October 2026</div>
+  <h1>How the Track 4 agent works</h1>
+  <p class="lead">The agent reads one unit's frozen documents and answers every entity row with a label or a number, a 90% interval, quoted evidence and up to three reasons. Code computes what the data can settle. The House model reads the documents, copies figures, forecasts the rest and writes the reasons. This page explains why it is built that way, what each part does, and then follows five practice units through real runs. It describes build c5, which adds the fixes of 8 Oct for units the practice set does not have; the platform figures are still c4's until c5 is uploaded.</p>
+  <div class="facts">
+    <div><b>0.673</b><span>c5 local estimate, 10 units &#xD7; 3 (c4: 0.651 local, 0.6560 on the platform)</span></div>
+    <div><b>3,477</b><span>lines in <code>solution/</code>, 20 modules, 198 tests</span></div>
+    <div><b>&#x2264; 25</b><span>House requests per unit, enforced (c5 practice runs used at most 24)</span></div>
+    <div><b>570 s</b><span>hard deadline on a 600 s card (c5 runs took at most 98 s, c4 209 s)</span></div>
+  </div>
+</header>
+
+<section id="task">
+  <h2>What a unit asks<small>The contract the agent works to, scorer 5.2.2</small></h2>
+  <div class="prose">
+    <p>A unit is one prediction task: a table of entities (companies, Treasury maturities, futures markets, macro series), one target per row, and a corpus of documents dated on or before the unit's cutoff. The target is a label (<em>classification</em>), a number (<em>regression</em>) or a number the rows are ordered by (<em>ranking</em>). The agent runs once per unit in a container, with the House model as its only language model.</p>
+  </div>
+  <div class="anatomy">
+    <div class="col">
+      <h3>In: <code>/input</code></h3>
+      <dl>
+        <dt>task.json</dt><dd>The prompt, the target's name, type and labels, <code>cutoff_date</code>, <code>resolution_date</code>, and the entity table with its feature columns (<code>prior_year_q_eps</code>, <code>start_yield_pct</code>, <code>latest_precutoff_estimate</code> ...).</dd>
+        <dt>card.toml</dt><dd>Interval level (0.90 on every unit), scoring parameters such as <code>interval_leg</code>, and the 600 s time limit.</dd>
+        <dt>manifest.json</dt><dd>Each document's label: the <code>entity_ids</code> it is about, or <code>shared</code>. Citing another entity's document makes a claim false.</dd>
+        <dt>corpus/*.json</dt><dd>Documents with <code>doc_date</code> and <code>text</code>: SEC filings, FRED and ALFRED vintages, Treasury, CFTC, BLS data, FOMC statements. Prose and pipe tables.</dd>
+      </dl>
+    </div>
+    <div class="col">
+      <h3>Out: <code>/output/answer.json</code></h3>
+      <dl>
+        <dt>label</dt><dd>One of the unit's labels, classification only.</dd>
+        <dt>point_forecast</dt><dd>The number in the prompt's units. On a ranking unit, the metric the rows are ranked by (larger means larger).</dd>
+        <dt>interval</dt><dd><code>{level: 0.9, lo, hi}</code> on every row, even when the unit does not score it.</dd>
+        <dt>claims</dt><dd>One or more spans <code>{doc_id, span_start, span_end, claim}</code> in documents the entity may cite, or in its own task row (<code>doc_id: "task"</code>).</dd>
+        <dt>submitted_reasons</dt><dd>Up to 3 reasons for the unit: premise, mechanism, answer implication, citations, scope. Graded in the Final only.</dd>
+      </dl>
+    </div>
+  </div>
+  <div class="prose">
+    <h3>How a unit is scored</h3>
+    <p>Each unit gets a composite of a prediction leg and an interval leg, scaled down by false claims. Both legs compare the answer with the unit's private naive rule (carry-forward on regression units; undisclosed on the others).</p>
+  </div>
+<div class="formula">composite   = 0.7 &#xB7; PQ + 0.3 &#xB7; IQ                         (PQ alone when the unit has no interval leg)
+PQ  regression      = naive_MAE / (naive_MAE + MAE)
+PQ  classification  = accuracy, anchored: naive &#x2192; 0.5, perfect &#x2192; 1
+PQ  ranking         = (Spearman + 1) / 2, anchored to max(naive, 0.5)
+IQ                  = min( naive_IS / (naive_IS + IS),  max(0.5, PQ) )
+IS  per row         = (hi &#x2212; lo) + 20 &#xB7; distance by which the truth falls outside [lo, hi]
+unit score          = composite &#xB7; (1 &#x2212; F / (F + min(T, 3E)))      F false claims, T true, E entities
+board               = &#x2212;0.27 + 1.27 &#xB7; mean(unit scores)            Final adds 0.25 &#xB7; reasoning grade</div>
+  <div class="prose">
+    <p>A claim is false when it cites another entity's document, when a figure in it is not in the span it cites, when the span is longer than 8,000 characters, or when it says nothing. A unit that fails the schema, cites a post-cutoff document, crashes or times out scores 0 (&#x2212;0.27 on the board). The House allows 25 requests per unit and 4,000 output tokens per request; the agent stops itself at 570 s of the 600 s limit.</p>
+    <p class="note">The practice units are format exemplars. The Final's held-out set is larger, spans many families that have no published counterpart, and adds documents dated after the cutoff and documents with edited values (issue #17, <code>docs/CATEGORIES.md</code>).</p>
+  </div>
+</section>
+
+<section id="principles">
+  <h2>Design principles<small>Each one is a rule the code follows, with the place it shows</small></h2>
+  <div class="principles">
+    <div class="principle"><div class="k">1</div><div>
+      <h3>Data first; the model where it measurably wins</h3>
+      <p>When a unit's documents hold an entity's history as a dated table, code computes a forecast from it and backtests a small menu of standard methods on that history. The data's point replaces the model's only where it measured far better: the next revision of a macro estimate, and EPS growth from a copied latest level. Everywhere else the model gives the point and the data gives the interval around it.</p>
+      <p class="where">Where: <code>priors.combine</code>. Evidence: switching the priors off costs 0.037 on the 10-unit mean; the model's own point beat a 50/50 blend by 0.002.</p>
+    </div></div>
+    <div class="principle"><div class="k">2</div><div>
+      <h3>Every number is traceable</h3>
+      <p>A submitted number either comes from a computation on named table rows, and cites the last row it used, or is the model's, written next to quotes that code places verbatim in the original text. A quote that cannot be found is not cited, and a claim's text is the passage's own words, so a paraphrase cannot slip in a figure the passage lacks.</p>
+      <p class="where">Where: <code>cite.place</code>, <code>cite.verbatim</code>, <code>Forecast.anchor</code>. Result: 0 false claims in 30 local runs of c4.</p>
+    </div></div>
+    <div class="principle"><div class="k">3</div><div>
+      <h3>The reasons explain the submitted answer</h3>
+      <p>Code works out what it decides before the model is called and writes it on the entity's line as a <em>decided forecast</em>. The model then writes reasons for the number that is actually submitted, instead of for a number that code later overrides.</p>
+      <p class="where">Where: <code>priors.decided</code>, <code>prompt.entity_lines</code>. Evidence: the model's block agreed with the submitted value 36/36 (macrorev), 23/24 (eps-growth), 12/12 (credit-event), against 19/36, 1/24, 10/12 before.</p>
+    </div></div>
+    <div class="principle"><div class="k">4</div><div>
+      <h3>Simple code, documented choices</h3>
+      <p>Every component has an ablation row: what the 10-unit score loses when it is switched off. Components whose effect was within run-to-run noise were removed: corrective turns on answer calls, asking again, a level guard, the blend weight, and the 2,133-line document segmentation stack. The code shrank by 44% and the score held.</p>
+      <p class="where">Where: <a href="results.md#ablations">results.md</a>, <a href="provenance.md">provenance.md</a>.</p>
+    </div></div>
+    <div class="principle"><div class="k">5</div><div>
+      <h3>Triggered by data shape, never by unit names</h3>
+      <p>No code branches on a unit id or family slug. A component fires when the data has its shape, matched by whole words: a vintage table, a dated column named like the entity, a numeric <code>prior_*</code> base that names a level, a credit label set, a <code>yield_change_bps</code> target. A shape the practice units lack is handled rather than refused: documents too large for one call are fitted smaller, a series no method can read costs one entity its prior, not the unit.</p>
+      <p class="where">Where: <code>types.CHANGE</code>, <code>priors._column</code>, <code>extract.bases</code>, <code>signals.findings</code>, <code>moves.starts</code>, <code>plan.doc_caps</code>.</p>
+    </div></div>
+    <div class="principle"><div class="k">6</div><div>
+      <h3>There is always an answer</h3>
+      <p>A valid answer is written before any model call; a unit that does not even load gets one built from <code>task.json</code> alone that still passes the schema. The hard deadline is the card's time limit less 30 s, the soft one 30 s earlier, and reasons are chosen at most 10 s past it. No unit makes more than 25 requests. Every row is coerced into a shape no gate refuses: a label in the vocabulary, a finite point, an ordered interval, at least one citation (its own task row when nothing else is citable).</p>
+      <p class="where">Where: <code>cli.run</code>, <code>cli.hard_deadline</code>, <code>pipeline.floor_answer</code>, <code>assemble</code>, <code>preflight</code>.</p>
+    </div></div>
+    <div class="principle"><div class="k">7</div><div>
+      <h3>Nothing learned from outcomes inside the image</h3>
+      <p>Methods are chosen per run by backtests on the unit's own pre-cutoff history. The few fixed constants are stated with their source: the yield floor's two constants were fitted on 58 FOMC meetings that resolved before the units' cutoffs, and practice-unit outcomes informed design choices under the issue #24 ruling, disclosed in the provenance file.</p>
+      <p class="where">Where: <code>forecast.py</code>, <code>moves.py</code>, <code>ARTIFACT_PROVENANCE.md</code>.</p>
+    </div></div>
+  </div>
+</section>
+
+<section id="pipeline">
+  <h2>The pipeline<small>One unit, from <code>analyze</code> to <code>answer.json</code>. Steps 4, 7 and 8 call the model; the rest is code.</small></h2>
+  <div class="legend"><span><span class="chip code">code</span> deterministic Python</span><span><span class="chip model">model</span> House model request</span></div>
+  <div class="flow" role="list">
+    <div class="stage" role="listitem"><span class="num">1</span><span class="name">Load<code>corpus.py</code></span><span class="who"><span class="chip code">code</span></span><span class="what">Read the task, roster and manifest labels. Drop every document dated after the cutoff, or undated, so no later step can see it. Shapes the practice units lack load too: labels from their definitions, text from spans, the file name as the document's id.</span></div>
+    <div class="stage" role="listitem"><span class="num">2</span><span class="name">Write a floor answer<code>cli.run</code></span><span class="who"><span class="chip code">code</span></span><span class="what">Each entity's computed prior, else no change or its row's value of the target, cited by a figure-bearing passage or else its own task row. Written before any request.</span></div>
+    <div class="stage" role="listitem"><span class="num">3</span><span class="name">Compute priors<code>data &#xB7; forecast &#xB7; priors</code></span><span class="who"><span class="chip code">code</span></span><span class="what">Dated table rows become each entity's series; a forecast menu is backtested on it; the result is a point, a 90% band and the row it rests on. A series no method can read costs that entity its prior only.</span></div>
+    <div class="stage model-stage" role="listitem"><span class="num">4</span><span class="name">Copy latest levels<code>extract &#xB7; LATEST_LEVEL</code></span><span class="who"><span class="chip model">model</span></span><span class="what">Growth targets with a level base only: the model copies each entity's latest reported level with a quote; code checks it and turns it into a growth prior that decides the point. At most 12 requests.</span></div>
+    <div class="stage" role="listitem"><span class="num">5</span><span class="name">Read filing signals<code>signals.py</code></span><span class="who"><span class="chip code">code</span></span><span class="what">Credit-event labels only: a going-concern doubt decides <code>credit_event</code>; an investment-grade rating with no speculative grade decides <code>no_event</code>.</span></div>
+    <div class="stage" role="listitem"><span class="num">6</span><span class="name">Plan the calls<code>plan &#xB7; render &#xB7; prompt</code></span><span class="who"><span class="chip code">code</span></span><span class="what">Group entities that share their own documents, at most 6 per call, each prompt within 40% of a 262K-token window. A group too large for that, or more calls than the requests left, gets its larger documents fitted smaller. The task's facts and the decided forecasts go in the prompt.</span></div>
+    <div class="stage model-stage" role="listitem"><span class="num">7</span><span class="name">Ask<code>pipeline._run &#xB7; llm</code></span><span class="who"><span class="chip model">model</span></span><span class="what">Every answer call, sampled 5, 3 or 1 times within 15 requests and what the copies left; up to 4 calls and 200K prompt tokens in flight. An entity no reply answers and with no prior is asked once more.</span></div>
+    <div class="stage model-stage" role="listitem"><span class="num">8</span><span class="name">Copy earlier levels<code>extract &#xB7; EARLIER_LEVEL</code></span><span class="who"><span class="chip model">model</span></span><span class="what">Yield-change targets only: the model lists earlier yields that dated sentences state, for the interval floor. Two requests are kept for it.</span></div>
+    <div class="stage" role="listitem"><span class="num">9</span><span class="name">Read and merge<code>reply.py</code></span><span class="who"><span class="chip code">code</span></span><span class="what">Parse each reply; per entity keep the median sample of the majority label, with an interval spanning those samples.</span></div>
+    <div class="stage" role="listitem"><span class="num">10</span><span class="name">Combine<code>priors &#xB7; signals &#xB7; moves</code></span><span class="who"><span class="chip code">code</span></span><span class="what">The two rules (point, then band), the decided signal labels, and the least half-width for yield changes.</span></div>
+    <div class="stage" role="listitem"><span class="num">11</span><span class="name">Cite and assemble<code>cite &#xB7; assemble</code></span><span class="who"><span class="chip code">code</span></span><span class="what">Place each quote in the original text; one valid row per roster entity; a row nothing answered takes the answered rows' width and label; ranks from points; a floor citation where none was found.</span></div>
+    <div class="stage" role="listitem"><span class="num">12</span><span class="name">Select reasons, check<code>reply.selected &#xB7; preflight</code></span><span class="who"><span class="chip code">code</span></span><span class="what">Check reasons in rank order, on the documents they cite, until 3 are kept or the clock runs out; run the mechanical gates; drop reasons that would fail the schema; write the answer.</span></div>
+  </div>
+  <div class="prose">
+    <p class="note">The order matters in one place. The growth copy (step 4) runs before the answer calls so the model sees the decided growth figure; the earlier-level copy (step 8) runs after them because it only sets an interval floor.</p>
+  </div>
+</section>
+
+<section id="components">
+  <h2>Components<small>What each part does, the constants it rests on, and what it was measured to be worth</small></h2>
+
+  <div class="comp" id="c-load">
+    <div class="comp-head"><h3>Load and the embargo</h3><span class="files">corpus.py 148 &#xB7; types.py 89</span></div>
+    <dl>
+      <dt>Job</dt><dd><p>Build the <code>Unit</code>: task id, prompt, target name, type and labels, cutoff and resolution dates, interval level, entities (id, name, features), documents (id, title, date, source, text, manifest label), and the task table as JSON for <code>"task"</code> citations.</p></dd>
+      <dt>Rule</dt><dd><p>A document whose <code>doc_date</code> is missing or later than the cutoff is never constructed. The stale-evidence trap of the Final (post-cutoff documents placed in the corpus) is closed before retrieval, prompting or citation can see it.</p></dd>
+      <dt>Labels</dt><dd><p>Each document is about its <code>entity_ids</code>, or is <code>shared</code>. A document the manifest does not label is treated as market-wide (<code>render.owned</code>).</p></dd>
+      <dt>Tolerances</dt><dd><p>Shapes the scorer accepts but no practice unit uses: a vocabulary given only as <code>label_assertions</code>; a document's text in <code>spans</code>, joined by a space as the scorer reads it; a null name; dates with a time part, cut to the day. A document's id is its file name, which is how the scorer resolves a citation. A <code>corpus_ref</code> that names nothing in the corpus (a mount path, <code>./corpus/</code>) reads the whole corpus: which documents an entity may cite is the manifest's to say.</p></dd>
+    </dl>
+  </div>
+
+  <div class="comp" id="c-render">
+    <div class="comp-head"><h3>The view: plain text</h3><span class="files">render.py 111 &#xB7; retrieve.py 89 &#xB7; tokens.py 46</span></div>
+    <dl>
+      <dt>Job</dt><dd><p>Show each document as its original text in a <code>&lt;doc id="D3" title date source about&gt;</code> tag, where <code>about</code> is <code>market</code> or the entity ids.</p></dd>
+      <dt>Rules</dt><dd><ul>
+        <li><b>As written.</b> A table row dated after the cutoff is shown: in a document dated before the cutoff it is a calendar, a projection or a curve by contract month, known on the document's date. Only the computed history leaves such rows out (<code>data.rows</code>).</li>
+        <li><b>Fit by retrieval.</b> A document over its cap (<code>DOC_MAX</code>, or a smaller one the plan sets) has its whitespace collapsed; if still too big, it is cut into windows of about 16,000 characters ending at sentence ends, ranked by BM25 against a query built from the task, and the best windows that fit are shown in document order with <code>[... 41,203 characters left out ...]</code> markers.</li>
+        <li><b>Tokens counted exactly</b> with the Nemotron tokenizer when it is available, else a calibrated estimate that undercounts in under 5% of cases.</li>
+      </ul></dd>
+      <dt>Constants</dt><dd><div class="consts"><span>WINDOW <b>262,144</b></span><span>CONTEXT_SHARE <b>0.4</b></span><span>PROMPT_RESERVE <b>8,192</b></span><span>DOC_MAX <b>96,665</b> tokens</span><span>WINDOW_CHARS <b>16,000</b></span></div></dd>
+      <dt>Evidence</dt><dd><p>Head-and-tail truncation kept 0 of 9 going-concern passages in one issuer's 10-K; BM25 kept all 9. Replacing the old segmentation with plain text left all 57 priors unchanged on the 11 units, cut prompts 17 to 25% on table units, and raised the estimate from 0.646 to 0.659 over 30 runs. The late-row filter c4 applied to the view removed nothing on the 11 units, so showing rows as written changed no practice prompt.</p></dd>
+    </dl>
+  </div>
+
+  <div class="comp" id="c-data">
+    <div class="comp-head"><h3>Tables as data</h3><span class="files">data.py 103</span></div>
+    <dl>
+      <dt>Job</dt><dd><p>Read every dated table row before the cutoff as history. A table is a header line of cells followed by rows whose first cell is a date (<code>2024-10</code> or <code>2024-10-22</code>), separated by <code>|</code> or tabs. The header names each cell, lowercased. Rows dated after the cutoff, and columns headed by a later release, are not history and are left out. Every value keeps the span of its row, so a computation can cite exactly the rows it used.</p></dd>
+      <dt>Views</dt><dd><ul>
+        <li><code>series(doc, column)</code>: one column's numbers in date order.</li>
+        <li><code>vintages(doc)</code>: a vintage table, where columns are <code>as_of_&lt;release date&gt;</code>; per reference period, its estimate as published at each release.</li>
+      </ul></dd>
+    </dl>
+  </div>
+
+  <div class="comp" id="c-forecast">
+    <div class="comp-head"><h3>The forecast menu</h3><span class="files">forecast.py 252</span></div>
+    <dl>
+      <dt>Job</dt><dd><p>Turn a series into a point and a 90% band, choosing among standard methods by a backtest on the series' own pre-cutoff history, with nothing fitted offline.</p></dd>
+      <dt>Forms</dt><dd><ul>
+        <li><b>Next value</b> (an auction's bid-to-cover after past auctions of its tenor). Menu: last value, mean of the last 3, mean of the last 6, mean of all, median of all. Each is backtested one step ahead from the 4th value on; the smallest mean absolute error wins; the band is the point plus that method's error quantiles.</li>
+        <li><b>Change</b> (a target named as a change, growth or return, such as a yield's move to the resolution date). The horizon is counted in the series' own steps: business days for a daily series, else whole periods of its median gap; a monthly row stands for its month's last day. With 5 or more backtest origins, <em>no change</em> and <em>drift</em> compete at that horizon; otherwise no change, with the step volatility scaled by the square root of the horizon.</li>
+        <li><b>Revision</b> (the next published estimate of a reference month). The latest estimate plus the median of past revisions over the same number of releases at the same age. Releases that moved the whole history at once (over 10 times the usual revision) are left out. The label is the direction of the point. A table with one release has no revision history: the point is the latest estimate.</li>
+      </ul></dd>
+      <dt>Intervals</dt><dd><p>With at least 19 backtest errors (for 90%), their 5% and 95% quantiles. With fewer, the small-sample interval <code>mean &#xB1; t(n&#x2212;1) &#xB7; s &#xB7; &#x221A;(1 + 1/n)</code>.</p></dd>
+      <dt>Constants</dt><dd><div class="consts"><span>MIN_FIT <b>3</b></span><span>MIN_ERRORS <b>5</b></span><span>BENCHMARK <b>10&#xD7;</b></span></div></dd>
+    </dl>
+  </div>
+
+  <div class="comp" id="c-priors">
+    <div class="comp-head"><h3>Priors and the two rules</h3><span class="files">priors.py 189</span></div>
+    <dl>
+      <dt>Finding a series</dt><dd><p>From the data, in this order: a vintage table in the entity's own documents whose period appears in its row, with a release date after the cutoff (a <em>revision</em>); else a dated column named as the entity, by its name or a text value of its row such as a series id, in its own or the market-wide documents; else, in its own documents only, the one column whose name's words all appear in the target's name. No match, or a tie, gives no prior. An entity whose series a method cannot read gets none; the others keep theirs.</p></dd>
+      <dt>Change targets</dt><dd><p>A target is a change when its name has the whole word <em>change</em>, <em>growth</em>, <em>return</em> or <em>returns</em> (<code>exchange_rate</code> and <code>return_on_equity</code> are not). Its series is forecast as a change to the resolution date, in basis points when the target says so and the series is in percent: its column says so, or a percent field of the entity's row (<code>start_yield_pct</code>) holds a value of its size.</p></dd>
+      <dt>Rule 1: point</dt><dd><p>The model's point, unless the prior <em>decides</em> it (a revision, or growth from a copied level) or the model gave none.</p></dd>
+      <dt>Rule 2: band</dt><dd><p>The prior's band moved to the point and still covering the prior's own band. On a ranking unit, the band's width centred on the point. A prior with no band (growth) takes the model's interval shifted to the point and stretched to hold the model's point. On revision units the label is the side of the point relative to the latest estimate.</p></dd>
+      <dt>Citations</dt><dd><p>Every prior cites the last row it used (<code>anchor</code>); a growth prior also cites the quote its level was copied from.</p></dd>
+      <dt>Evidence</dt><dd><p>Without priors the mean drops 0.037: eps-growth &#x2212;0.229 (MAE 8.4 &#x2192; 21.9), macrorev &#x2212;0.132 (accuracy 0.583 &#x2192; 0.444), cotpos &#x2212;0.013. The former 0.5 blend of model and prior points lost to the model's own point by 0.002 (fomc-2024 +0.016, cpicomp +0.013, auction &#x2212;0.010), so it was replaced by rule 1.</p></dd>
+    </dl>
+  </div>
+
+  <div class="comp" id="c-extract">
+    <div class="comp-head"><h3>Copies</h3><span class="files">extract.py 213</span></div>
+    <dl>
+      <dt>Job</dt><dd><p>Small model calls that copy figures and forecast nothing. The system text: <em>"You copy figures from documents. You do not forecast, estimate or compute."</em> Each reply line is <code>id | value: &#x2026; | period: &#x2026; | quote: "&#x2026;"</code>.</p></dd>
+      <dt>Latest level</dt><dd><p>For a growth target, the entities with a numeric <code>prior_*</code> base that names a level (not a rate, change or percent field) and no history prior. Code keeps a line only when the value is one of the quote's numbers and lies between a fifth and five times the base, the quote is found in the entity's own documents, the period does not end after those documents' date, and the value differs from the base. A whole table row copied at the base's column takes its first column, because filings print the latest period first. Growth is (level &#x2212; base) / |base|, times 100 when the target's name says <em>pct</em> or <em>percent</em>.</p></dd>
+      <dt>Earlier level</dt><dd><p>For a yield-change target, the call shows only the sentences that state a figure for a date before the cutoff (no table lines) and asks for every earlier level with its date, or <code>none</code>. The oldest valid level per entity is kept.</p></dd>
+      <dt>Budget</dt><dd><p>Copy calls are planned at most 8 and take at most 12 requests with their corrections, leaving the answer calls at least 13; the planner fits documents smaller to stay within that. A copy reply that fails the checks is sent back once with the problems named; answer calls have no corrective turn.</p></dd>
+      <dt>Constants</dt><dd><div class="consts"><span>RATIO <b>0.2 to 5</b></span><span>COPY_CALLS <b>8</b></span><span>COPY_REQUESTS <b>12</b></span></div></dd>
+      <dt>Evidence</dt><dd><p>Without the growth copy the mean drops 0.023, all of it on eps-growth (MAE 8.4 &#x2192; 21.9, IS 95 &#x2192; 265). The earlier-level copy read 6 of 6 yields correctly after it was limited to dated sentences.</p></dd>
+    </dl>
+  </div>
+
+  <div class="comp" id="c-signals">
+    <div class="comp-head"><h3>Filing signals</h3><span class="files">signals.py 79</span></div>
+    <dl>
+      <dt>Job</dt><dd><p>For a unit whose labels are exactly <code>credit_event</code> and <code>no_event</code>, decide the label from the entity's own filings where they state it plainly.</p></dd>
+      <dt>Rules</dt><dd><ul>
+        <li><b>Going concern.</b> "substantial doubt about &#x2026; ability to continue as a going concern", not negated by <em>no</em>, <em>not</em> or <em>whether</em> just before it, decides <code>credit_event</code>, even when management says its plans alleviate the doubt.</li>
+        <li><b>Investment grade.</b> A credit-rating passage with a grade from Aaa to Baa3 or AAA to BBB&#x2212;, and no rating passage with a speculative grade, decides <code>no_event</code>.</li>
+      </ul><p>The decided label and its passage go on the entity's line before the call; after it, a probability on the wrong side of one half is mirrored with its interval.</p></dd>
+      <dt>Evidence</dt><dd><p>&#x2212;0.011 on the mean without it; credit-event accuracy falls from 0.833 to 0.750. The model weighs these signals against losses and charges and calls them either way from run to run.</p></dd>
+    </dl>
+  </div>
+
+  <div class="comp" id="c-moves">
+    <div class="comp-head"><h3>Yield floor</h3><span class="files">moves.py 63</span></div>
+    <dl>
+      <dt>Job</dt><dd><p>For a <code>yield_change_bps</code> target, a least half-width for every interval: the largest move the documents state (from the copied earlier levels), scaled to the horizon by the square root of time.</p></dd>
+      <dt>Formula</dt><dd><p><code>half = hypot(a, K &#xB7; max |level_cutoff &#x2212; level_earlier| &#xB7; 100 &#xB7; &#x221A;(horizon / span))</code>, with spans and horizon in business days; <code>a</code> alone when no move is stated. <code>a = A</code> within the 27 to 63 weekdays A was fitted on; outside them A scales with the square root of the horizon over the nearer end, so a two-day horizon is not given a seven-week floor.</p></dd>
+      <dt>Constants</dt><dd><div class="consts"><span>A <b>28 bps</b></span><span>K <b>1.05</b></span><span>HORIZONS <b>27 to 63</b> weekdays</span></div><p class="note">Fitted on 58 past FOMC meetings built from public FRED data, all resolved before the practice units' cutoffs.</p></dd>
+      <dt>Why</dt><dd><p>The model writes about &#xB1;10 bps for a yield change whatever the documents say, and an instruction did not change that.</p></dd>
+      <dt>Evidence</dt><dd><p>&#x2212;0.004 on the mean, &#x2212;0.022 on fomc-2022 and &#x2212;0.014 on fomc-2024 without it (IS 328 &#x2192; 1,166 and 198 &#x2192; 566). Both practice horizons (38 and 34 weekdays) are inside the fitted range, so their floors are unchanged.</p></dd>
+    </dl>
+  </div>
+
+  <div class="comp" id="c-plan">
+    <div class="comp-head"><h3>Plan</h3><span class="files">plan.py 167</span></div>
+    <dl>
+      <dt>Job</dt><dd><p>Split the roster into the fewest answer calls. Entities that share a document of their own (one not every entity has) go in the same call. Each call's prompt holds the prompt text, the documents every entity shares and the batch's own documents, within 40% of the window.</p></dd>
+      <dt>Output budget</dt><dd><p>An entity plans on 460 reply tokens (a 160-token block and its own 300-token reason), a call on 2 shared reasons besides, within 85% of the 4,000-token cap: <code>(3,400 &#x2212; 600) / 460 = 6</code> entities per call at most.</p></dd>
+      <dt>Fitting</dt><dd><p>A group whose documents together exceed the budget (an entity with two large filings, a filing about two entities) gives its larger documents the largest shared cap at which the group fits (<code>doc_caps</code>). With a call limit (the requests left), every document is lowered to the largest cap at which the groups pack into that many calls (<code>fewer</code>). Each document's cap goes with its call to the render.</p></dd>
+      <dt>Constants</dt><dd><div class="consts"><span>OUTPUT_SHARE <b>0.85</b></span><span>PER_BLOCK <b>160</b></span><span>PER_REASON <b>300</b></span><span>SHARED <b>2</b></span><span>BATCH_MAX <b>16</b></span><span>TAG <b>256</b></span></div></dd>
+      <dt>Evidence</dt><dd><p>On eps-growth one bank's documents take up to 97,102 of the 102,522 tokens a call allows. A bank given a second 10-Q used to make the planner refuse the unit; it is now planned in one call with both filings fitted, and the other banks' prompts are unchanged.</p></dd>
+    </dl>
+  </div>
+
+  <div class="comp" id="c-prompt">
+    <div class="comp-head"><h3>Prompt</h3><span class="files">prompt.py 181</span></div>
+    <dl>
+      <dt>System</dt><dd><p>A careful financial analyst; only the documents and the entity rows, no outside knowledge, and "where the documents differ from what you remember, the documents are right"; verbatim quotes; what the target means for this target type; what a good answer is (close forecasts, 90% intervals no wider than needed, exact claims, reasons that agree with the forecasts); the output format; a filled sample with illustrative entities, whose label lines show the shape only.</p></dd>
+      <dt>User</dt><dd><p><code>&lt;documents&gt;</code>; <code>&lt;task&gt;</code> opening with the task's facts (the target and its type, each label's definition from <code>label_assertions</code>, the cutoff and resolution dates) and then the unit's own prompt; <code>&lt;entities&gt;</code> as lines <code>id &#x2014; name | key: value; &#x2026;</code> with <code>| decided forecast: &#x2026;</code> where code decides; a closing line naming the entities in order.</p></dd>
+      <dt>Quote rule</dt><dd><p>"an exact copy of a passage (at least 8 words) or of a whole table row, in double quotes".</p></dd>
+      <dt>Reply format</dt><dd><p>Structured text: a <code>&lt;reasons&gt;</code> section of <code>&lt;reason&gt;</code> blocks (citation, premise, mechanism, implication, scope), then <code>&lt;forecasts&gt;</code> with one <code>&lt;entity id&gt;</code> block per entity (claim, label, point_forecast, int_lo, int_hi). Chosen on 4 Oct over provider JSON: equal quality in a head-to-head, fewer tokens.</p></dd>
+    </dl>
+<pre>&lt;task&gt;
+target: earnings_reaction (classification)
+label positive_reaction: will have a one-day abnormal return greater than 1% after its 2024-02-01 earnings release
+label negative_reaction: will have a one-day abnormal return less than -1% after its 2024-02-01 earnings release
+label flat: will have a one-day abnormal return between -1% and 1% after its 2024-02-01 earnings release
+cutoff date: 2024-01-31; resolution date: 2024-02-02
+Using ONLY the frozen evidence corpus ...
+<span class="dim">                                (postearn's task block, since 8 Oct)</span></pre>
+    <div class="prose"><p class="note">The task facts are new on 8 Oct: 6 of the 11 practice prompts do not state the resolution date, and none restates the label definitions verbatim. Live x3 on all 10 units with the current code: postearn's accuracy rose from 0.667 to 1.000 (AAPL, flat before, now negative_reaction at the stated &#x2212;1% band), cotpos's Spearman from 0.565 to 0.643, and the local estimate from 0.651 to 0.673; cotpos's interval score worsened (27.4 to 34.2, silver's points nearer zero).</p></div>
+  </div>
+
+  <div class="comp" id="c-calls">
+    <div class="comp-head"><h3>Calls and samples</h3><span class="files">pipeline.py 351 &#xB7; llm.py 322</span></div>
+    <dl>
+      <dt>Client</dt><dd><p>OpenAI-compatible chat completions, plain text in and out (<code>ask_text</code>). Temperature 0, top_p 0.95, seed from <code>QFBENCH_SEED</code>. On the House route, thinking is off (<code>enable_thinking: false</code>). Development runs the same model, Nemotron 3 Super, on OpenRouter.</p></dd>
+      <dt>Retries</dt><dd><p>Rate limits and server errors (429, 5xx) wait 5, 15, 30, 60 s, or the server's Retry-After. Connection failures are retried; after 3 unreachable calls in a row the House is taken as down and the unit is answered from what is in hand. No retry starts with under 60 s left.</p></dd>
+      <dt>Budget</dt><dd><p>25 requests per unit: the copies take at most 12, 2 are kept for the earlier-level copy, the answer calls take the rest. A run's starts and corrections draw on one budget under a lock, so concurrent calls cannot pass the cap.</p></dd>
+      <dt>Pool</dt><dd><p>Calls start as soon as they fit beside the ones in flight: at most 4 at once and 200,000 prompt tokens together; a larger call goes alone. No call starts with under 30 s to the soft deadline; calls still running at it are abandoned.</p></dd>
+      <dt>Samples</dt><dd><p>The answer calls are drawn 5 times when 5 &#xD7; calls fits both 15 and the requests left, else 3 times, else once. One draw when every entity's point is decided.</p></dd>
+      <dt>Asking again</dt><dd><p>An entity no reply answers and that has no prior is asked once more, in calls of its own, within the budget and the clock. One with a prior takes the prior: asking again never fired in 30 practice runs, where five samples cover a missing block.</p></dd>
+      <dt>Constants</dt><dd><div class="consts"><span>TEMPERATURE <b>0</b></span><span>IN_FLIGHT <b>4</b></span><span>TOKENS_IN_FLIGHT <b>200,000</b></span><span>SAMPLES <b>(5, 3)</b></span><span>SAMPLE_CALLS <b>15</b></span><span>EARLIER_REQUESTS <b>2</b></span><span>MIN_CALL <b>30 s</b></span><span>BREAK_AFTER <b>3</b></span></div></dd>
+      <dt>Evidence</dt><dd><p>One sample instead of five costs 0.014 on the mean: eps-yoy IS 1.28 &#x2192; 5.82, cotpos Spearman 0.822 &#x2192; 0.794. Temperature 0 is not deterministic on OpenRouter; samples are what steady the points.</p></dd>
+    </dl>
+  </div>
+
+  <div class="comp" id="c-reply">
+    <div class="comp-head"><h3>Reading and merging replies</h3><span class="files">reply.py 287</span></div>
+    <dl>
+      <dt>Parse</dt><dd><p>Line by line into reasons and entity blocks. It accepts a field written as an element (<code>&lt;premise&gt;&#x2026;&lt;/premise&gt;</code>), continuation lines, quotes with or without a trailing note, and numbers in e-notation. A block with a label and no number keeps its label and takes the floor's point.</p></dd>
+      <dt>Merge</dt><dd><p>Per entity across samples: the most common label; among those samples, the median sample's block (its point and claims); an interval from the lowest <code>lo</code> to the highest <code>hi</code> of those samples. Samples that disagree are uncertainty, and a 90% interval pays twenty times a miss against once its width.</p></dd>
+      <dt>Evidence</dt><dd><p>The spanning interval is worth 0.008 on the mean against the median sample's own interval (eps-yoy IS 1.28 &#x2192; 5.06).</p></dd>
+    </dl>
+  </div>
+
+  <div class="comp" id="c-cite">
+    <div class="comp-head"><h3>Citations and assembly</h3><span class="files">cite.py 195 &#xB7; assemble.py 236</span></div>
+    <dl>
+      <dt>Placing a quote</dt><dd><p>Only in the documents the entity may cite (its own and the shared ones), in their original text. Matching folds case, quote marks, dashes, invisible characters and whitespace runs; table cells may also match with whitespace ignored. Whole quotes across all those documents are tried before openings (at least 40 characters), then the longest piece around "...". The longest opening is found by bisection over the quote's word ends, since an opening that is found means every shorter one is too. A <code>key: value</code> quote of the entity's own row becomes a citation of that key in the task table.</p></dd>
+      <dt>Claim text</dt><dd><p>The passage's own words, at most 600 characters, never the model's paraphrase.</p></dd>
+      <dt>Assembly</dt><dd><ul>
+        <li>One row per roster entity, in roster order; task id and target type from the unit, never from the model.</li>
+        <li>A label is taken as written, else matched without case, quotes, markup or the difference between spaces, hyphens and underscores; else it becomes the neutral one (<code>inline</code>, <code>flat</code>, <code>no_event</code> &#x2026;), logged.</li>
+        <li>A missing point takes the floor: no change for a change target, else the row's <code>latest_*</code> or <code>last_*</code> value of the target's quantity (sharing a word with the target's name), else the answered rows' median.</li>
+        <li>A row no reply answered takes the answered rows' median width and most common label, never a zero-width interval.</li>
+        <li>An inverted interval is swapped; a missing bound takes the point.</li>
+        <li>Duplicate claims, content-free claims (the scorer's own word lists) and spans over 8,000 characters are dropped.</li>
+        <li>A row left with no claim cites the passage the roster cited most within its scope, else its first figure-bearing passage of 20 to 600 characters, else a value of its own task row.</li>
+        <li>On a ranking unit, <code>rank</code> follows the points, largest first.</li>
+      </ul></dd>
+      <dt>Evidence</dt><dd><p>Plain-text quoting exposed invented quotes the old line-id shortcut hid: rows with another day's values, revision sentences no document has (fomc-2024 8, macrorev 10 in 30 runs). They are now left uncited; every entity still had a real claim, and floor claims stayed at 5 in 30 runs.</p></dd>
+    </dl>
+  </div>
+
+  <div class="comp" id="c-reasons">
+    <div class="comp-head"><h3>Reasons</h3><span class="files">reply.selected</span></div>
+    <dl>
+      <dt>Job</dt><dd><p>Choose up to 3 of every call's reasons as <code>submitted_reasons</code>, using the grader's own checks from <code>baselines/guardrails_example/citation_rail.py</code>.</p></dd>
+      <dt>Rules</dt><dd><ul>
+        <li>Ranked first: cited before uncited, then by how much of the roster the reason is about, then its place in its call, then call order.</li>
+        <li>Then checked one at a time in that order, only until 3 are kept: citations placed in the documents; <code>[task]</code> citations, citations found nowhere and citations the judge would not see or over 8,000 characters dropped; a deny-list hit or malformed reason refused; a reason citing a passage another call's chosen reason cites refused; the grader's <code>reasons_judged</code> run on the trial set (size caps, no duplicates).</li>
+        <li>Each grader check is given only the documents the reasons cite, and selection stops 10 s past the soft deadline.</li>
+      </ul></dd>
+      <dt>Why</dt><dd><p>Leaving reasons out costs nothing, but a reasons block that fails the schema voids the whole unit. In the Final, reasons are graded against hidden target reasons for coverage, grounding, inferential link and consistency with the answer.</p></dd>
+      <dt>Evidence</dt><dd><p>Checking every reason first, each check reading the whole corpus, made assembly the slowest stage on filing units. Replaying the 30 c4 runs took 6 min 12 s before and 20 s after, with the same reasons chosen.</p></dd>
+    </dl>
+  </div>
+
+  <div class="comp" id="c-entry">
+    <div class="comp-head"><h3>Entry, clock and checks</h3><span class="files">cli.py 165 &#xB7; preflight.py 191</span></div>
+    <dl>
+      <dt>Entry</dt><dd><p><code>analyze --task /input/task.json --corpus /input/corpus/ --out /output/answer.json</code>. The floor answer is written first. If the pipeline raises after the unit has loaded, the floor answer is written again with the error in <code>notes</code>. If the unit does not load, the answer is built from <code>task.json</code> alone: each row cites a value of its own task row and, on a classification unit, takes the vocabulary's first label, so it still passes the schema.</p></dd>
+      <dt>Clock</dt><dd><p>The hard deadline is the card's <code>[agent] timeout_sec</code> less 30 s, or a tenth of a shorter limit: 570 s on a 600 s card. A soft deadline 30 s before it ends the call pool; a <code>SIGALRM</code> at the hard deadline interrupts anything still hanging.</p></dd>
+      <dt>Checks</dt><dd><p><code>preflight</code> runs the scorer's mechanical gates locally (<code>g0_integrity</code>, <code>g1_schema</code>, <code>g2_cutoff_resource</code>, the alignment and embargo checks of <code>g3</code>). A reasons block that would fail <code>g1_schema</code> is removed rather than risk the unit. A trace the disk refuses is reported and skipped.</p></dd>
+    </dl>
+  </div>
+</section>
+
+<section id="evidence">
+  <h2>What the evidence says<small>Platform submissions, ablations on 30 stored runs, and the current build unit by unit</small></h2>
+
+  <h3>Platform history (analysis score, scorer 5.2.2)</h3>
+  <div class="chart">
+    <svg viewBox="0 0 660 236" role="img" aria-label="Analysis score of seven Development submissions, from 0.487 on 3 October to 0.663 and 0.656 on 7 October">
+      <line class="grid" x1="60" x2="630" y1="20" y2="20"/><text x="52" y="24" text-anchor="end">0.70</text>
+      <line class="grid" x1="60" x2="630" y1="52" y2="52"/><text x="52" y="56" text-anchor="end">0.65</text>
+      <line class="grid" x1="60" x2="630" y1="84" y2="84"/><text x="52" y="88" text-anchor="end">0.60</text>
+      <line class="grid" x1="60" x2="630" y1="116" y2="116"/><text x="52" y="120" text-anchor="end">0.55</text>
+      <line class="grid" x1="60" x2="630" y1="148" y2="148"/><text x="52" y="152" text-anchor="end">0.50</text>
+      <line class="grid" x1="60" x2="630" y1="180" y2="180"/><text x="52" y="184" text-anchor="end">0.45</text>
+      <polyline class="line" points="80,156.3 165,112.6 250,78.0 335,91.8 420,90.0 505,43.4 590,48.2"/>
+      <circle class="dot" cx="80" cy="156.3" r="4.5"/><text class="val" x="80" y="146" text-anchor="middle">0.487</text>
+      <circle class="dot" cx="165" cy="112.6" r="4.5"/><text class="val" x="165" y="102" text-anchor="middle">0.555</text>
+      <circle class="dot" cx="250" cy="78.0" r="4.5"/><text class="val" x="250" y="68" text-anchor="middle">0.609</text>
+      <circle class="dot" cx="335" cy="91.8" r="4.5"/><text class="val" x="335" y="110" text-anchor="middle">0.588</text>
+      <circle class="dot" cx="420" cy="90.0" r="4.5"/><text class="val" x="420" y="80" text-anchor="middle">0.591</text>
+      <circle class="dot" cx="505" cy="43.4" r="4.5"/><text class="val" x="505" y="33" text-anchor="middle">0.663</text>
+      <circle class="dot now" cx="590" cy="48.2" r="5"/><text class="val" x="590" y="66" text-anchor="middle">0.656</text>
+      <text x="80" y="204" text-anchor="middle">958415</text><text x="80" y="220" text-anchor="middle">v3.16k &#xB7; 3 Oct</text>
+      <text x="165" y="204" text-anchor="middle">960771</text><text x="165" y="220" text-anchor="middle">v4.12 &#xB7; 5 Oct</text>
+      <text x="250" y="204" text-anchor="middle">960843</text><text x="250" y="220" text-anchor="middle">v4.12 fix</text>
+      <text x="335" y="204" text-anchor="middle">961834</text><text x="335" y="220" text-anchor="middle">c series</text>
+      <text x="420" y="204" text-anchor="middle">962251</text><text x="420" y="220" text-anchor="middle">c2 &#xB7; 5 Oct</text>
+      <text x="505" y="204" text-anchor="middle">966184</text><text x="505" y="220" text-anchor="middle">c3 &#xB7; 7 Oct</text>
+      <text x="590" y="204" text-anchor="middle">967146</text><text x="590" y="220" text-anchor="middle">c4 &#xB7; 7 Oct</text>
+    </svg>
+  </div>
+  <div class="prose"><p class="note">c3 to c4 is the simplification: 44% less code at the same score. The 0.007 gap is one unit, cotpos, a sampled ranking whose local runs spread from 0.755 to 0.878 Spearman.</p></div>
+
+  <h3>What each part is worth (switched off, change in the 10-unit mean)</h3>
+  <div class="abl" role="table" aria-label="Ablation effects">
+    <div class="hd" role="columnheader">Component</div><div class="axis" role="columnheader"><span>&#x2212;0.04 (part helps)</span><span>0</span><span>+0.04</span></div><div class="hd v" role="columnheader">&#x394; mean</div>
+    <div>Computed priors</div><div class="track"><div class="bar neg" style="width:46.25%"></div></div><div class="v">&#x2212;0.037</div>
+    <div>Growth copy</div><div class="track"><div class="bar neg" style="width:28.75%"></div></div><div class="v">&#x2212;0.023</div>
+    <div>5 samples (vs 1)</div><div class="track"><div class="bar neg" style="width:17.5%"></div></div><div class="v">&#x2212;0.014</div>
+    <div>Filing signals</div><div class="track"><div class="bar neg" style="width:13.75%"></div></div><div class="v">&#x2212;0.011</div>
+    <div>Spanning interval</div><div class="track"><div class="bar neg" style="width:10%"></div></div><div class="v">&#x2212;0.008</div>
+    <div>Yield floor</div><div class="track"><div class="bar neg" style="width:5%"></div></div><div class="v">&#x2212;0.004</div>
+    <div>0.5 blend (replaced)</div><div class="track"><div class="bar pos" style="width:2.5%"></div></div><div class="v">+0.002</div>
+    <div>Corrective turns (removed)</div><div class="track"></div><div class="v">0.000</div>
+    <div>Asking again (removed)</div><div class="track"></div><div class="v">0.000</div>
+    <div>Level guard (removed)</div><div class="track"></div><div class="v">0.000</div>
+  </div>
+  <div class="prose"><p class="note">Replay of the 30 runs of the c3 image with each part switched off, scored with local stand-in naive rules. A part counts when it moves the mean by 0.005 or one unit by 0.02 in the same direction on most runs; the yield floor stays on its unit effect (fomc-2022 &#x2212;0.022). Bars are to scale, half the track is 0.04.</p></div>
+
+  <h3>The current build, unit by unit</h3>
+  <div class="prose"><p>c5 is c4 with the generalization fixes. Its 10 units ran three times each through the submission entrypoint on the same model: 30 of 30 runs clean, 0 false claims, 0 failed calls, at most 24 requests. The platform columns are c4's and c3's until c5 is uploaded.</p></div>
+  <div class="tw"><table>
+    <thead><tr><th>Unit</th><th>Type</th><th>Raw metrics, c5 local mean of 3 runs</th><th class="n">c5 local est.</th><th class="n">c4 local est.</th><th class="n">c4 platform</th><th class="n">c3 platform</th></tr></thead>
+    <tbody>
+      <tr><td>eps-yoy-2023Q2-mixed</td><td>classification</td><td>accuracy 1.00, MAE 0.26, IS 1.08</td><td class="n">0.947</td><td class="n">0.941</td><td class="n">0.937</td><td class="n">0.942</td></tr>
+      <tr><td>cotpos-202411-us10</td><td>ranking</td><td>Spearman &#x3C1; 0.643 (c4 0.565), IS 34.2 (c4 27.4)</td><td class="n">0.720</td><td class="n">0.680</td><td class="n">0.758</td><td class="n">0.831</td></tr>
+      <tr><td>credit-event-2023</td><td>classification</td><td>accuracy 0.875; no interval leg</td><td class="n">0.750</td><td class="n">0.750</td><td class="n">0.750</td><td class="n">0.750</td></tr>
+      <tr><td>postearn-20240201-megacap</td><td>classification</td><td>accuracy 1.00 (c4 0.667), MAE 7.22, IS 119.2</td><td class="n">0.849</td><td class="n">0.727</td><td class="n">0.729</td><td class="n">0.725</td></tr>
+      <tr><td>eps-growth-2024Q3-banks</td><td>regression</td><td>MAE 7.30 pp (c4 8.57), IS 90.1 (c4 103.3)</td><td class="n">0.676</td><td class="n">0.641</td><td class="n">0.625</td><td class="n">0.638</td></tr>
+      <tr><td>cpicomp-202410-us11</td><td>regression</td><td>MAE 0.686 pp, IS 4.48</td><td class="n">0.609</td><td class="n">0.611</td><td class="n">0.608</td><td class="n">0.606</td></tr>
+      <tr><td>macrorev-20240930-us6</td><td>classification</td><td>accuracy 0.583; interval not scored in Development</td><td class="n">0.583</td><td class="n">0.583</td><td class="n">0.583</td><td class="n">0.583</td></tr>
+      <tr><td>fomc-curve-20220728</td><td>regression</td><td>MAE 76.1 bps, IS 254 (c4 302)</td><td class="n">0.558</td><td class="n">0.548</td><td class="n">0.542</td><td class="n">0.558</td></tr>
+      <tr><td>fomc-curve-20240918</td><td>regression</td><td>MAE 61.6 bps, IS 197.8</td><td class="n">0.532</td><td class="n">0.532</td><td class="n">0.530</td><td class="n">0.515</td></tr>
+      <tr><td>auction-btc-202411-us7</td><td>regression</td><td>MAE 0.139, IS 0.573 (c4 0.646)</td><td class="n">0.504</td><td class="n">0.500</td><td class="n">0.496</td><td class="n">0.485</td></tr>
+      <tr><td><b>mean</b></td><td></td><td>30 of 30 runs clean, 0 false claims, 0 failed calls</td><td class="n"><b>0.673</b></td><td class="n"><b>0.651</b></td><td class="n"><b>0.6560</b></td><td class="n"><b>0.6634</b></td></tr>
+    </tbody>
+  </table></div>
+  <div class="prose">
+    <p class="note">The local estimate uses the practice outcomes reconstructed from public data and stand-in naive rules; for c4 it matched the platform within 0.01 on 8 of 10 units, and cotpos's private ranking anchor puts its platform score above the estimate. Raw metrics, not estimates, decide changes.</p>
+    <p class="note">What moved from c4 to c5: postearn's labels (AAPL, flat at 0 before, is now negative_reaction once the &#xB1;1% band is stated in the task facts), cotpos's ranking, eps-growth's and fomc-2022's errors and intervals. One thing got worse: cotpos's interval score, because silver's points moved toward zero (&#x2212;2 to &#x2212;3 against a true &#x2212;15) and missed their intervals. Offline, the fixes other than the prompt change leave all 30 stored c4 runs identical. Details: <a href="results.md">results.md</a>.</p>
+  </div>
+</section>
+
+<section id="walkthroughs">
+  <h2>Walkthroughs<small>Five practice units through run r1 of build c4-618228e, from the stored traces</small></h2>
+  <div class="prose"><p>Each unit shows a different split of work between code and model. Numbers come from the stored trace and answer of run r1, from replaying the code locally without model calls (the replay reproduces every submitted point and interval), and from the reconstructed answer keys for the truth. The prompts shown are c4's; since 8 Oct each task block also opens with the target, the label definitions and the dates.</p></div>
+  <div class="tabs" role="tablist" aria-label="Walkthrough units">
+    <button role="tab" id="t-epsg" aria-controls="w-epsg" aria-selected="true">eps-growth &#xB7; a copied level decides</button>
+    <button role="tab" id="t-macrorev" aria-controls="w-macrorev" aria-selected="false" tabindex="-1">macrorev &#xB7; the revision decides</button>
+    <button role="tab" id="t-credit" aria-controls="w-credit" aria-selected="false" tabindex="-1">credit-event &#xB7; filings decide</button>
+    <button role="tab" id="t-fomc" aria-controls="w-fomc" aria-selected="false" tabindex="-1">fomc-2024 &#xB7; model point, data interval</button>
+    <button role="tab" id="t-cotpos" aria-controls="w-cotpos" aria-selected="false" tabindex="-1">cotpos &#xB7; the model ranks</button>
+  </div>
+
+  <div class="panel" id="w-epsg" role="tabpanel" aria-labelledby="t-epsg">
+    <div class="strip">
+      <div><span>Target</span><b>YoY growth of Q3 2024 diluted EPS, % (regression)</b></div>
+      <div><span>Dates</span><b>cutoff 2024-10-10, resolution 2024-10-24</b></div>
+      <div><span>Entities</span><b>8 banks</b></div>
+      <div><span>Documents</span><b>12: 8 10-Qs, 4 8-Ks, one bank each</b></div>
+      <div><span>Requests</span><b>16 (8 copy + 8 answer)</b></div>
+      <div><span>Time</span><b>209 s</b></div>
+    </div>
+    <ol class="steps">
+      <li><h3>Each 10-Q is fitted to one call</h3>
+        <p>Every 10-Q is larger than <code>DOC_MAX</code> (96,665 tokens). USB's fits once its whitespace is collapsed. The other seven are cut into windows of about 16,000 characters, ranked by BM25 against a query built from the task ("diluted earnings per share net income year over year growth percent bank &#x2026;"), and kept best-first while they fit.</p>
+        <div class="tw"><table><thead><tr><th>Filing</th><th class="n">Tokens</th><th class="n">Shown</th><th class="n">Kept</th><th class="n">Gaps</th></tr></thead><tbody>
+          <tr><td>JPM 10-Q, 2024-08-02</td><td class="n">215,796</td><td class="n">94,406</td><td class="n">50.4%</td><td class="n">9</td></tr>
+          <tr><td>C 10-Q, 2024-08-02</td><td class="n">234,358</td><td class="n">94,025</td><td class="n">48.3%</td><td class="n">7</td></tr>
+          <tr><td>GS 10-Q, 2024-08-02</td><td class="n">215,326</td><td class="n">95,119</td><td class="n">48.6%</td><td class="n">9</td></tr>
+          <tr><td>PNC 10-Q, 2024-08-02</td><td class="n">113,703</td><td class="n">96,301</td><td class="n">94.7%</td><td class="n">2</td></tr>
+          <tr><td>USB 10-Q, 2024-08-06</td><td class="n">100,215</td><td class="n">90,612</td><td class="n">whitespace only</td><td class="n">0</td></tr>
+        </tbody></table></div>
+<pre>...higher legal expense and higher volume-related non-compensation expense.  <span class="hl">[... 15,090 characters left out ...]</span> Selected income statement data (in millions, except ratios) Three months ended June 30, ...</pre></li>
+      <li><h3>No history, so the model copies the latest EPS</h3>
+        <p>The filings hold no dated series, so there are no history priors. The target says <em>growth</em> and each row has <code>prior_year_q_eps</code>, so every bank qualifies for a copy call: 8 calls, one bank each, prompts of 93,000 to 98,000 tokens, replies of 57 to 71 tokens.</p>
+<pre>Each entity's row gives a base value: JPM: prior_year_q_eps = 4.33. For each entity, find in its documents the same quantity for the most recent period they report, later than the base's period. ...
+&lt;entity id&gt; | value: &lt;the number as printed&gt; | period: &lt;the period it is for&gt; | quote: "&lt;the passage that states it, copied exactly&gt;"</pre>
+<pre>JPM | value: 4.33 | period: three months ended September 30, 2023 | quote: "Diluted 6.12 4.44 3.04 4.33 4.75 10.56 8.85"
+BAC | value: 0.83 | period: Three Months Ended June 30 2024 | quote: "Diluted earnings 0.83 0.88 1.59 1.82"
+USB | value: 0.97 | period: Three Months Ended June 30, 2024 | quote: "Diluted earnings per share .97 .84 15.5 1.75 1.87 (6.4)"</pre></li>
+      <li><h3>The checks catch three different mistakes</h3>
+        <ul>
+          <li><b>JPM, a copied base.</b> The model copied the 3Q23 column, which is the base itself. The row's header is <code>2Q24 1Q24 4Q23 3Q23 2Q23</code>, so the first-column rule takes 6.12 (6.12 / 4.33 = 1.41, inside 0.2 to 5).</li>
+          <li><b>USB in run r3, a remembered figure.</b> The first reply was <code>value: 1.03 | period: three months ended September 30, 2024</code>. 1.03 is USB's real Q3 EPS, published after the cutoff, and the quote is in no USB document. The period guard rejected it ("ends after the date of its documents"), and the corrected reply gave 0.97.</li>
+          <li><b>USB in run r2, a number not in its quote.</b> Rejected twice; USB then had no prior and the model's own 2.2% was submitted.</li>
+        </ul></li>
+      <li><h3>Code computes the growth and shows it as decided</h3>
+        <p>Point = (level / base &#x2212; 1) &#xD7; 100. The prior has no band of its own and it decides the point.</p>
+        <div class="tw"><table><thead><tr><th>Bank</th><th class="n">Level / base</th><th class="n">Point</th></tr></thead><tbody>
+          <tr><td>BAC</td><td class="n">0.83 / 0.90</td><td class="n">&#x2212;7.78</td></tr>
+          <tr><td>JPM</td><td class="n">6.12 / 4.33</td><td class="n">41.34</td></tr>
+          <tr><td>USB</td><td class="n">0.97 / 0.91</td><td class="n">6.59</td></tr>
+        </tbody></table></div>
+<pre>JPM &#x2014; JPMorgan Chase &amp; Co. | sector: Financials; ... prior_year_q_eps: 4.33; expected_report_date: 2024-10-11; currency: USD/share <span class="hl">| decided forecast: point_forecast 41.3395, from the latest reported level (the quoted row's first column: 6.12) against the row's prior_year_q_eps (4.33)</span></pre></li>
+      <li><h3>Eight answer calls, one draw</h3>
+        <p>One bank's documents take 90,000 to 97,000 tokens, so each call holds one bank. Every point is decided, so there is one sample. With at most 200,000 prompt tokens in flight, the calls run two at a time. Answer replies ran 726 to 1,539 tokens.</p>
+<pre>&lt;reason n="1"&gt;
+citation: "Diluted earnings per share 6.12 4.75 29 10.56 8.85 19"
+mechanism: ... driven by a $7.9 billion net gain related to Visa shares and higher investment banking fees ...
+implication: Assuming similar drivers persist into Q3 2024, the YoY EPS growth ... will be approximately 29% ...
+<span class="dim">...</span>
+&lt;entity id="JPM"&gt;
+claim: "Diluted earnings per share 6.12 4.75 29 10.56 8.85 19"
+point_forecast: 41.3395
+int_lo: 31.3395
+int_hi: 51.3395
+&lt;/entity&gt;</pre>
+        <p>The model gives the decided point in its block, but its first reason argues for 29%, and a second notes that "the Visa gain may not repeat".</p></li>
+      <li><h3>From reply to answer</h3>
+        <p>The prior decides the point. With no band of its own, the interval is the model's, shifted to the point; since the model wrote the decided point, the shift is about 0.00001.</p>
+        <div class="tw"><table><thead><tr><th></th><th>MS</th><th>JPM</th></tr></thead><tbody>
+          <tr><td>Prior (decides)</td><td class="mono">31.884</td><td class="mono">41.339</td></tr>
+          <tr><td>Model block</td><td class="mono">31.8841 [25, 40]</td><td class="mono">41.3395 [31.34, 51.34]</td></tr>
+          <tr><td><b>Submitted</b></td><td class="mono"><b>31.884 [25.0, 40.0]</b></td><td class="mono"><b>41.339 [31.34, 51.34]</b></td></tr>
+          <tr><td>Claims</td><td>3 from MS's 10-Q, one the copied passage: "Diluted earnings per common share was $1.82, which increased by 47% compared with $1.24 in the prior year quarter."</td><td>2 from JPM's 10-Q: the model's row and the copied row</td></tr>
+          <tr><td>Truth</td><td class="mono">36.23, error 4.35, <span class="hit">covered</span></td><td class="mono">0.92, error 40.42, <span class="miss">missed</span>, IS 628</td></tr>
+        </tbody></table></div>
+        <p>29 reasons were written across 8 calls and 3 submitted (BAC, C, GS). Only C's states its number exactly; GS's argues for "similar or higher" growth and then gives 57.6% against a prior quarter of about 180%.</p></li>
+      <li><h3>Outcome</h3>
+        <div class="tw"><table><thead><tr><th>Bank</th><th class="n">Truth %</th><th class="n">Point</th><th class="n">Interval</th><th class="n">Error</th><th>Covered</th></tr></thead><tbody>
+          <tr><td>BAC</td><td class="n">&#x2212;10.00</td><td class="n">&#x2212;7.78</td><td class="n">[&#x2212;15.0, 0.0]</td><td class="n">2.22</td><td class="hit">yes</td></tr>
+          <tr><td>C</td><td class="n">&#x2212;7.36</td><td class="n">&#x2212;6.75</td><td class="n">[&#x2212;15.0, 1.5]</td><td class="n">0.61</td><td class="hit">yes</td></tr>
+          <tr><td>GS</td><td class="n">53.56</td><td class="n">57.59</td><td class="n">[40.0, 75.0]</td><td class="n">4.03</td><td class="hit">yes</td></tr>
+          <tr><td>JPM</td><td class="n">0.92</td><td class="n">41.34</td><td class="n">[31.34, 51.34]</td><td class="n">40.42</td><td class="miss">no</td></tr>
+          <tr><td>MS</td><td class="n">36.23</td><td class="n">31.88</td><td class="n">[25.0, 40.0]</td><td class="n">4.35</td><td class="hit">yes</td></tr>
+          <tr><td>PNC</td><td class="n">&#x2212;3.06</td><td class="n">&#x2212;5.83</td><td class="n">[&#x2212;15.0, 3.0]</td><td class="n">2.77</td><td class="hit">yes</td></tr>
+          <tr><td>USB</td><td class="n">13.19</td><td class="n">6.59</td><td class="n">[1.6, 11.6]</td><td class="n">6.60</td><td class="miss">no</td></tr>
+          <tr><td>WFC</td><td class="n">&#x2212;4.05</td><td class="n">&#x2212;10.14</td><td class="n">[&#x2212;20.14, &#x2212;0.14]</td><td class="n">6.09</td><td class="hit">yes</td></tr>
+        </tbody></table></div>
+        <p class="note">3 runs: MAE 8.57 (8.39 / 8.93 / 8.39), IS 103.3, 0 false claims, 16 to 17 requests, 172 to 209 s. Without JPM, r1's MAE is 3.81; JPM's interval score is 628 of r1's 790.</p></li>
+    </ol>
+    <div class="lesson"><b>What it shows.</b> Data decides the number and the model reads and copies. A small copy call finds one printed figure, code checks it against its quote, the period and the base, and a formula sets the point. The model then has to explain that point. The checks earn their place: they caught a copied base, a number missing from its quote, and a remembered post-cutoff figure. The model alone carries the last quarter's growth forward and scores MAE 17.3; removing the copy raises MAE to 21.9. The weak spot is what one level cannot see: JPM's Q2 EPS includes a $7.9 billion Visa gain that its own filing flags, and the model noticed it in a reason, but the point does not.</div>
+  </div>
+  <div class="panel" id="w-macrorev" role="tabpanel" aria-labelledby="t-macrorev" hidden>
+    <div class="strip">
+      <div><span>Target</span><b>next revision up or down (classification)</b></div>
+      <div><span>Dates</span><b>cutoff 2024-09-30; releases 2024-10-04 to 11-27</b></div>
+      <div><span>Entities</span><b>12 series-months</b></div>
+      <div><span>Documents</span><b>6 ALFRED vintage tables + 1 shared BLS page</b></div>
+      <div><span>Requests</span><b>2 (2 calls &#xD7; 1 sample)</b></div>
+      <div><span>Time</span><b>17 s</b></div>
+    </div>
+    <ol class="steps">
+      <li><h3>Code reads each series' vintage table</h3>
+        <p>Each row names a series, a reference month, the latest estimate and the release that will revise it. The series' own document is a vintage table: one row per month, one column per release.</p>
+<pre>reference_month | as_of_2024-06-07 | as_of_2024-07-05 | as_of_2024-08-02 | as_of_2024-09-06
+2024-06 | -- | 158638 | 158609 | 158548
+<span class="hl">2024-07 | -- | -- | 158723 | 158637</span></pre>
+        <p>The revision prior adds to the latest estimate the median of past revisions over the same number of releases at the same age. With fewer than 3 such revisions it uses revisions at any age.</p>
+        <div class="tw"><table><thead><tr><th>Entity</th><th>Past revisions used</th><th class="n">Point</th><th class="n">Band</th><th>Label</th></tr></thead><tbody>
+          <tr><td>PAYEMS 2024-07</td><td>same age: &#x2212;57, &#x2212;2, &#x2212;61</td><td class="n">158,580</td><td class="n">[158,485.8, 158,708.2]</td><td>down</td></tr>
+          <tr><td>HOUST 2024-07</td><td>same age: 25, 1, 0</td><td class="n">1,238</td><td class="n">[1,197.9, 1,293.4]</td><td>up</td></tr>
+          <tr><td>PI 2024-07</td><td>any age, 11; median 0, mean &#x2212;4.35</td><td class="n">24,803.2</td><td class="n">[24,783.6, 24,814.1]</td><td>down</td></tr>
+        </tbody></table></div>
+        <p>PI's 2024-09-27 release moved every month by about +700 (a comprehensive update) and is left out of its history by the 10&#xD7; rule.</p></li>
+      <li><h3>Every entity's forecast is decided before the call</h3>
+<pre>PAYEMS_2024-07_20241004 &#x2014; Total Nonfarm Payroll Employment | ... latest_precutoff_estimate: 158637.0; latest_precutoff_vintage: 2024-09-06; resolving_release_date: 2024-10-04; ... <span class="hl">| decided forecast: label down, point_forecast 158580, from latest estimate plus the median of 3 past 1-release revisions at the same age</span></pre>
+        <p>11 of the 12 decided labels are <em>down</em>. Because every point is decided, there is one sample: 2 calls of 6 entities, 9,763 and 10,667 tokens.</p></li>
+      <li><h3>The model writes reasons for the decided forecast</h3>
+<pre>&lt;reason n="4"&gt;
+citation: "The 2024-07 estimate was revised DOWN from 158723.0 (as of 2024-08-02) to 158637.0 (as of 2024-09-06)."
+premise: The July 2024 PAYEMS estimate was revised down in the September 6, 2024 release.
+mechanism: ... the median of 3 past 1-release revisions at the same age supports a downward revision.
+<span class="dim">...</span>
+&lt;entity id="PAYEMS_2024-07_20241004"&gt;
+label: down
+point_forecast: 158580
+int_lo: 158500
+int_hi: 158660
+&lt;/entity&gt;</pre>
+        <p>In the second call the model invented three revision sentences for August, which has had no revision yet. They were not found in any document and were not cited.</p></li>
+      <li><h3>From reply to answer</h3>
+        <div class="tw"><table><thead><tr><th></th><th>Model block</th><th>Prior</th><th>Submitted</th><th>Truth</th></tr></thead><tbody>
+          <tr><td>HOUST 2024-07</td><td class="mono">up 1238 [1230, 1246]</td><td class="mono">up 1238 [1197.9, 1293.4]</td><td class="mono">up 1238 [1197.9, 1293.4]</td><td class="mono">up 1262: <span class="hit">hit, covered</span></td></tr>
+          <tr><td>PAYEMS 2024-07</td><td class="mono">down 158580 [158500, 158660]</td><td class="mono">down 158580 [158485.8, 158708.2]</td><td class="mono">down 158580 [158485.8, 158708.2]</td><td class="mono">up 158692: <span class="miss">label missed</span>, covered</td></tr>
+        </tbody></table></div>
+        <p>Each entity cites its prior's anchor row (35 characters). Of 12 reasons, 3 were kept; 4 were dropped for citations found nowhere. Across the 12 entities the model's own intervals would have covered 2; the prior bands covered 7.</p></li>
+      <li><h3>Outcome</h3>
+        <div class="tw"><table><thead><tr><th>Entity</th><th>Truth</th><th>Submitted</th><th>Label</th><th>Covered</th></tr></thead><tbody>
+          <tr><td>DGORDER 2024-07</td><td class="mono">down 289,419</td><td class="mono">down 289,499</td><td class="hit">hit</td><td>yes</td></tr>
+          <tr><td>DGORDER 2024-08</td><td class="mono">down 287,018</td><td class="mono">down 289,662</td><td class="hit">hit</td><td>no</td></tr>
+          <tr><td>HOUST 2024-07</td><td class="mono">up 1,262</td><td class="mono">up 1,238</td><td class="hit">hit</td><td>yes</td></tr>
+          <tr><td>INDPRO 2024-07</td><td class="mono">up 102.586</td><td class="mono">down 102.266</td><td class="miss">miss</td><td>no</td></tr>
+          <tr><td>INDPRO 2024-08</td><td class="mono">down 102.933</td><td class="mono">down 102.811</td><td class="hit">hit</td><td>yes</td></tr>
+          <tr><td>PAYEMS 2024-07</td><td class="mono">up 158,692</td><td class="mono">down 158,580</td><td class="miss">miss</td><td>yes</td></tr>
+          <tr><td>PAYEMS 2024-08 (Oct)</td><td class="mono">up 158,851</td><td class="mono">down 158,693</td><td class="miss">miss</td><td>no</td></tr>
+          <tr><td>PAYEMS 2024-08 (Nov)</td><td class="mono">down 158,770</td><td class="mono">down 158,779</td><td class="hit">hit</td><td>yes</td></tr>
+          <tr><td>PI 2024-07</td><td class="mono">up 24,819.3</td><td class="mono">down 24,803.2</td><td class="miss">miss</td><td>no</td></tr>
+          <tr><td>PI 2024-08</td><td class="mono">down 24,740.2</td><td class="mono">down 24,853.7</td><td class="hit">hit</td><td>no</td></tr>
+          <tr><td>RSAFS 2024-07</td><td class="mono">up 710,851</td><td class="mono">down 710,235</td><td class="miss">miss</td><td>yes</td></tr>
+          <tr><td>RSAFS 2024-08</td><td class="mono">down 710,038</td><td class="mono">down 710,773</td><td class="hit">hit</td><td>yes</td></tr>
+        </tbody></table></div>
+        <p class="note">3 identical runs: accuracy 7 / 12, IS 1,963 (not scored in Development: the outcome lacks the numeric value, issue #25), 0 false claims, 2 requests, 17 to 43 s. The platform anchor is 6 / 12, so 7 / 12 scores 0.583.</p></li>
+    </ol>
+    <div class="lesson"><b>What it shows.</b> The data decides everything and the model only explains it, so all three runs are identical. Without the revision prior, accuracy falls to 0.444 and the interval score more than doubles. The limit is the forecast itself: the truth was 6 up and 6 down, the prior said down 11 times, and the October releases revised payrolls up after every same-age revision in the table had been negative.</div>
+  </div>
+  <div class="panel" id="w-credit" role="tabpanel" aria-labelledby="t-credit" hidden>
+    <div class="strip">
+      <div><span>Target</span><b>credit event within 12 months (classification)</b></div>
+      <div><span>Dates</span><b>2023-03-31 &#x2192; 2024-03-31</b></div>
+      <div><span>Entities</span><b>8 issuers</b></div>
+      <div><span>Documents</span><b>8 filings, one each, 0.18 to 1.03 MB</b></div>
+      <div><span>Requests</span><b>8 (8 calls &#xD7; 1 sample)</b></div>
+      <div><span>Time</span><b>101 s</b></div>
+    </div>
+    <ol class="steps">
+      <li><h3>The largest filing is fitted by retrieval</h3>
+        <p>WeWork's 10-K is 1,026,584 characters, 240,298 tokens even with whitespace collapsed. It is cut into 65 windows; BM25 against the task's query ("credit event company whether will experience months through chapter bankruptcy filing payment default &#x2026;") keeps 27 of them (94,376 tokens), and "substantial doubt" still appears 10 times in the prompt. Yellow's 10-K fits after collapsing whitespace.</p></li>
+      <li><h3>Code reads two plain signals in each issuer's full filing</h3>
+        <div class="tw"><table><thead><tr><th>Issuer</th><th>Decided</th><th>Passage</th></tr></thead><tbody>
+          <tr><td>BBBY</td><td>credit_event</td><td>"substantial doubt about the Company&#x2019;s ability to continue as a going concern"</td></tr>
+          <tr><td>WE</td><td>credit_event</td><td>the same phrase; two of its 7 matches follow "whether" and are skipped as negated</td></tr>
+          <tr><td>BBY</td><td>no_event</td><td>"credit ratings and outlook as of March 15, 2023, remained unchanged &#x2026; Standard &amp; Poor's BBB+"</td></tr>
+          <tr><td>WBA</td><td>no_event</td><td>"Credit ratings As of March 27, 2023, &#x2026; Outlook Moody&#x2019;s Baa3"</td></tr>
+        </tbody></table></div>
+        <p>No signal fires for the other four: Macy's ratings are split (Ba1, BB+, BBB&#x2212;), and a speculative grade vetoes the investment-grade rule; Rite Aid, Yellow and Old Dominion have neither signal.</p>
+<pre>BBBY &#x2014; Bed Bath &amp; Beyond Inc. | industry: Consumer Discretionary (specialty retail); cik: 0000886158 <span class="hl">| decided forecast: label credit_event, from the filing: "substantial doubt about the Company&#x2019;s ability to continue as a going concern"</span></pre></li>
+      <li><h3>Eight calls of one filing each</h3>
+        <p>No two filings fit one call (the smallest pair is 109,000 tokens), so each issuer has its own call: prompts of 48,940 to 95,875 tokens. Eight calls allow one sample. Each call took 7 to 10 s.</p></li>
+      <li><h3>The model decides the other four</h3>
+<pre>&lt;reason n="1"&gt;
+citation: "Net Income (Loss) $ 21.8 $ ( 109.1 ) $ ( 53.5 )"
+premise: Yellow Corporation reported net income of $21.8 million for the year ended December 31, 2022, reversing prior-year losses.
+<span class="dim">...</span>
+&lt;entity id="YELL"&gt;
+claim: "Net Income (Loss) $ 21.8 $ ( 109.1 ) $ ( 53.5 )"
+claim: "As of December 31, 2022 and 2021 our total debt was $1,538.0 million and $1,554.5 million, respectively."
+label: no_event
+point_forecast: 0.05
+int_lo: 0.01
+int_hi: 0.12
+&lt;/entity&gt;</pre></li>
+      <li><h3>From reply to answer</h3>
+        <div class="tw"><table><thead><tr><th></th><th>Model</th><th>Code</th><th>Submitted</th><th>Truth</th></tr></thead><tbody>
+          <tr><td>BBBY</td><td class="mono">credit_event 0.85</td><td>going-concern signal</td><td class="mono">credit_event 0.85 [0.75, 0.95]</td><td>Chapter 11 on 2023-04-23: <span class="hit">hit</span></td></tr>
+          <tr><td>YELL</td><td class="mono">no_event 0.05</td><td>no signal</td><td class="mono">no_event 0.05 [0.01, 0.12]</td><td>Chapter 11 on 2023-08-06: <span class="miss">miss</span></td></tr>
+        </tbody></table></div>
+        <p>The model followed every decided label in all three runs, so no label was flipped after the call, and BBBY's submitted reason cites the going-concern passage. Two weak citations: Rite Aid's quotes added dollar signs the table lacks and were not found; Old Dominion's block had no claim line, so it took the floor citation, the 10-K's cover line.</p></li>
+      <li><h3>Outcome</h3>
+        <div class="tw"><table><thead><tr><th>Issuer</th><th>Truth</th><th>Submitted</th><th>Label</th></tr></thead><tbody>
+          <tr><td>BBBY</td><td>credit_event</td><td class="mono">credit_event 0.85</td><td class="hit">hit</td></tr>
+          <tr><td>BBY</td><td>no_event</td><td class="mono">no_event 0.01</td><td class="hit">hit</td></tr>
+          <tr><td>M</td><td>no_event</td><td class="mono">no_event 0.05</td><td class="hit">hit</td></tr>
+          <tr><td>ODFL</td><td>no_event</td><td class="mono">no_event 0.01</td><td class="hit">hit</td></tr>
+          <tr><td>RAD</td><td>credit_event</td><td class="mono">credit_event 0.65</td><td class="hit">hit</td></tr>
+          <tr><td>WBA</td><td>no_event</td><td class="mono">no_event 0.05</td><td class="hit">hit</td></tr>
+          <tr><td>WE</td><td>credit_event</td><td class="mono">credit_event 0.75</td><td class="hit">hit</td></tr>
+          <tr><td>YELL</td><td>credit_event</td><td class="mono">no_event 0.05</td><td class="miss">miss</td></tr>
+        </tbody></table></div>
+        <p class="note">3 runs: accuracy 7 / 8 every run, 0 false claims, 8 requests, 99 to 105 s. The card turns the interval leg off, so only labels score; the platform anchor is 6 / 8, so 7 / 8 scores 0.750.</p></li>
+    </ol>
+    <div class="lesson"><b>What it shows.</b> Two plain rules over each issuer's full filing decide half the roster, and the model, shown those labels first, explains them. The model decides the rest and gets three of four, missing Yellow in every run: its 10-K has no going-concern conclusion and no rating, and the model read a $21.8 million profit and $241.8 million of liquidity as safety. Retrieval matters only for WeWork's 1 MB filing, and the signal reads the full text anyway.</div>
+  </div>
+
+  <div class="panel" id="w-fomc" role="tabpanel" aria-labelledby="t-fomc" hidden>
+    <div class="strip">
+      <div><span>Target</span><b>yield change, bps (regression)</b></div>
+      <div><span>Horizon</span><b>2024-09-19 &#x2192; 2024-11-06, 34 weekdays</b></div>
+      <div><span>Entities</span><b>6 Treasury maturities</b></div>
+      <div><span>Documents</span><b>3, all shared</b></div>
+      <div><span>Requests</span><b>7 (5 samples + 2 copy)</b></div>
+      <div><span>Time</span><b>26 s</b></div>
+    </div>
+    <ol class="steps">
+      <li><h3>Code finds each maturity's series and forecasts no change</h3>
+        <p>Each row names its FRED series (<code>series_fred: DGS2</code>), which is a column of the rates snapshot D3: an 11-row daily table from 2024-09-05 to 2024-09-19. The target name says <em>change</em> and <em>bps</em>, so the prior is the change form in basis points. A 34-step horizon on 11 rows leaves no backtest origins, so the prior is <em>no change</em> with the daily volatility scaled by &#x221A;34: half-width t(9) &#xB7; s &#xB7; &#x221A;34, t(9) = 1.833.</p>
+        <div class="tw"><table><thead><tr><th>Entity</th><th>Daily moves (bps)</th><th class="n">s</th><th class="n">Prior point</th><th class="n">Band</th></tr></thead><tbody>
+          <tr><td>UST2Y</td><td class="mono">&#x2212;9, 2, &#x2212;9, 3, 2, &#x2212;7, &#x2212;1, 3, 2, &#x2212;2</td><td class="n">4.949</td><td class="n">0</td><td class="n">[&#x2212;52.89, 52.89]</td></tr>
+          <tr><td>UST10Y</td><td class="mono">&#x2212;1, &#x2212;2, &#x2212;5, 0, 3, &#x2212;2, &#x2212;3, 2, 5, 3</td><td class="n">3.162</td><td class="n">0</td><td class="n">[&#x2212;33.80, 33.80]</td></tr>
+          <tr><td>UST30Y</td><td class="mono">1, &#x2212;3, &#x2212;3, &#x2212;1, 4, &#x2212;2, &#x2212;4, 2, 7, 3</td><td class="n">3.596</td><td class="n">0</td><td class="n">[&#x2212;38.44, 38.44]</td></tr>
+        </tbody></table></div>
+        <p>A change prior never decides, so no entity line carries a decided forecast. Each prior cites the 2024-09-19 row of D3.</p></li>
+      <li><h3>One call, five samples</h3>
+        <p>Six entities fit one call (the cap is 6). The prompt is 7,961 tokens; one call allows 5 samples. Each sample replied in 1,409 to 1,783 tokens and 10 to 13 s.</p>
+<pre>UST10Y &#x2014; 10-Year U.S. Treasury constant-maturity yield | maturity_years: 10; series_fred: DGS10; start_yield_pct: 3.73; as_of: 2024-09-19; unit: bps_change
+UST2Y &#x2014; 2-Year U.S. Treasury constant-maturity yield | maturity_years: 2; series_fred: DGS2; start_yield_pct: 3.59; as_of: 2024-09-19; unit: bps_change
+<span class="dim">...
+Answer for these entities, in this order: UST10Y, UST2Y, UST30Y, UST3Y, UST5Y, UST7Y.</span></pre></li>
+      <li><h3>The model's reply</h3>
+<pre>&lt;reason n="1"&gt;
+citation: "On 2024-09-18 the Federal Open Market Committee lowered the target range ... larger-than-standard first step."
+premise: The Fed cut rates by 50 bps on 2024-09-18, setting the target range midpoint at 4.875%.
+mechanism: The 2-year yield started at 3.59%, which is 128.5 bps below the new policy midpoint, ...
+<span class="dim">...</span>
+&lt;entity id="UST2Y"&gt;
+claim: "<span class="hl">2024-09-19 | 3.93 | 3.59 | 3.47 | 3.49 | 3.6 | 3.73 | 4.11 | 4.06</span>"
+point_forecast: 15
+int_lo: 5
+int_hi: 25
+&lt;/entity&gt;</pre>
+        <p>The five samples' points for UST2Y were 15, 45, 15, 15, &#x2212;5; for UST10Y 5, 12, 5, 5, &#x2212;3. The merge keeps the median (15 and 5) and an interval spanning all samples ([&#x2212;20, 60] and [&#x2212;15, 20]).</p></li>
+      <li><h3>A copy call finds an older yield, and the floor follows from it</h3>
+        <p>After the answer calls, the earlier-level copy is shown only the two sentences that state a figure for a date before the cutoff. Its first reply copied the cutoff level itself; code rejected it ("the period is not a date before the cutoff") and sent it back once:</p>
+<pre>UST2Y | value: 4.77 | period: 2024-07-01 | quote: "4.77 percent close on 2024-07-01"</pre>
+        <p>That is a 118 bps move over 58 weekdays. Scaled to the 34-weekday horizon: 118 &#xB7; &#x221A;(34/58) = 90.35 bps. The least half-width is <code>hypot(28, 1.05 &#xB7; 90.35) = 98.9</code> bps, applied to every maturity.</p></li>
+      <li><h3>From reply to answer</h3>
+        <div class="tw"><table><thead><tr><th>Stage</th><th>UST2Y</th><th>UST10Y</th></tr></thead><tbody>
+          <tr><td>Merged model point, spanning interval</td><td class="mono">15, [&#x2212;20, 60]</td><td class="mono">5, [&#x2212;15, 20]</td></tr>
+          <tr><td>Prior</td><td class="mono">0, [&#x2212;52.89, 52.89]</td><td class="mono">0, [&#x2212;33.80, 33.80]</td></tr>
+          <tr><td>Combine: model point, prior band moved to it and still covering the prior's band</td><td class="mono">15, [&#x2212;52.89, 67.89]</td><td class="mono">5, [&#x2212;33.80, 38.80]</td></tr>
+          <tr><td><b>Yield floor &#xB1;98.9 &#x2192; submitted</b></td><td class="mono"><b>15, [&#x2212;83.91, 113.91]</b></td><td class="mono"><b>5, [&#x2212;93.91, 103.91]</b></td></tr>
+        </tbody></table></div>
+        <p>Every entity cites the same 65-character D3 row; the model's claim and the prior's anchor coincide, so it appears once. Of 18 reasons written across the samples, 3 were kept, all citing the snapshot: the 50 bp cut leaves the 2-year 128.5 bps under the policy midpoint; the projections show a shallower path than markets priced; market-implied paths are more aggressive than the Committee's.</p></li>
+      <li><h3>Outcome</h3>
+        <div class="tw"><table><thead><tr><th>Entity</th><th class="n">Truth</th><th class="n">Point</th><th class="n">Interval</th><th class="n">Error</th><th>Covered</th></tr></thead><tbody>
+          <tr><td>UST10Y</td><td class="n">69</td><td class="n">5</td><td class="n">[&#x2212;93.91, 103.91]</td><td class="n">&#x2212;64</td><td class="hit">yes</td></tr>
+          <tr><td>UST2Y</td><td class="n">68</td><td class="n">15</td><td class="n">[&#x2212;83.91, 113.91]</td><td class="n">&#x2212;53</td><td class="hit">yes</td></tr>
+          <tr><td>UST30Y</td><td class="n">54</td><td class="n">2</td><td class="n">[&#x2212;96.91, 100.91]</td><td class="n">&#x2212;52</td><td class="hit">yes</td></tr>
+          <tr><td>UST3Y</td><td class="n">73</td><td class="n">12</td><td class="n">[&#x2212;86.91, 110.91]</td><td class="n">&#x2212;61</td><td class="hit">yes</td></tr>
+          <tr><td>UST5Y</td><td class="n">78</td><td class="n">8</td><td class="n">[&#x2212;90.91, 106.91]</td><td class="n">&#x2212;70</td><td class="hit">yes</td></tr>
+          <tr><td>UST7Y</td><td class="n">77</td><td class="n">6</td><td class="n">[&#x2212;92.91, 104.91]</td><td class="n">&#x2212;71</td><td class="hit">yes</td></tr>
+        </tbody></table></div>
+        <div class="tw"><table><thead><tr><th>Interval at each stage (r1)</th><th class="n">Mean IS</th><th class="n">Covered</th></tr></thead><tbody>
+          <tr><td>Model's spanning intervals</td><td class="n">827.2</td><td class="n">0 / 6</td></tr>
+          <tr><td>Prior band around the model point</td><td class="n">489.4</td><td class="n">0 / 6</td></tr>
+          <tr><td>With the yield floor (submitted)</td><td class="n">197.8</td><td class="n">6 / 6</td></tr>
+        </tbody></table></div>
+        <p class="note">3 runs: MAE 61.3 bps (61.8 / 61.8 / 60.3), IS 197.8 on every run, 0 false claims, 7 requests, 20 to 27 s. The model's points (MAE 61.8) beat the no-change prior (69.8).</p></li>
+    </ol>
+    <div class="lesson"><b>What it shows.</b> The model sets the point and reads the documents the right way (yields rise as the projections disappoint easing hopes), but it sizes the move at +2 to +15 bps against a realised +54 to +78. The highest sample, +45 on the 2-year, was still 23 bps short. The data's contribution is the interval: one older yield stated in one sentence, copied and checked, turns 0 of 6 covered into 6 of 6 and cuts the interval score from 489 to 198. Three short documents with no history before September cannot tell the size of a seven-week move.</div>
+  </div>
+
+  <div class="panel" id="w-cotpos" role="tabpanel" aria-labelledby="t-cotpos" hidden>
+    <div class="strip">
+      <div><span>Target</span><b>change in net position, % of open interest (ranking)</b></div>
+      <div><span>Window</span><b>2024-10-22 report &#x2192; 2024-11-26 report</b></div>
+      <div><span>Entities</span><b>10 futures markets</b></div>
+      <div><span>Documents</span><b>10 own COT tables + 2 shared</b></div>
+      <div><span>Requests</span><b>10 (2 calls &#xD7; 5 samples)</b></div>
+      <div><span>Time</span><b>60 s</b></div>
+    </div>
+    <ol class="steps">
+      <li><h3>Code finds a column by the target's words</h3>
+        <p>No column is named after a market, so the prior uses the one column of each market's own table whose words all appear in the target's name: <code>net_%OI</code> reads as {net, pct, oi}. Each table has 26 weekly rows. The change menu is backtested at 5 weekly steps over 18 origins; 18 errors is one short of empirical quantiles, so the band is the small-sample interval.</p>
+        <div class="tw"><table><thead><tr><th>Entity</th><th class="n">MAE no change</th><th class="n">MAE drift</th><th>Chosen</th><th class="n">Prior point</th><th class="n">Band</th></tr></thead><tbody>
+          <tr><td>UST_2Y</td><td class="n">3.495</td><td class="n">4.578</td><td>no change</td><td class="n">0</td><td class="n">[&#x2212;7.54, 7.12]</td></tr>
+          <tr><td>JPY_CME</td><td class="n">23.581</td><td class="n">21.976</td><td>drift</td><td class="n">11.29</td><td class="n">[&#x2212;28.85, 71.00]</td></tr>
+          <tr><td>GOLD_CMX</td><td class="n">4.937</td><td class="n">7.686</td><td>no change</td><td class="n">0</td><td class="n">[&#x2212;9.21, 11.08]</td></tr>
+          <tr><td>NATGAS_NYMEX</td><td class="n">1.288</td><td class="n">2.617</td><td>no change</td><td class="n">0</td><td class="n">[&#x2212;3.40, 2.41]</td></tr>
+        </tbody></table></div>
+        <p>Nine of ten markets chose no change. A change prior never decides the point, so the model's points stand.</p></li>
+      <li><h3>Two calls of five, five samples each</h3>
+        <p>Ten markets need two calls at 6 per call: b1 holds corn, S&amp;P, euro, gold and yen with their tables; b2 the rest. Prompts are 13,991 and 14,351 tokens. Two calls allow 5 samples (10 requests).</p>
+<pre>JPY_CME &#x2014; Japanese yen futures | exchange: Chicago Mercantile Exchange; asset_class: fx; ... net_pct_oi_20241022: 6.16; trailing_4wk_net_change_pct_oi: -25.68; unit: pct_of_open_interest</pre></li>
+      <li><h3>The model's reply and the samples</h3>
+<pre>&lt;entity id="JPY_CME"&gt;
+claim: "As of the 2024-10-22 report, the noncommercial net position was +12,771 contracts (+6.16% of the 207,338-contract open interest)."
+point_forecast: -3.0
+int_lo: -4.0
+int_hi: -2.0
+&lt;/entity&gt;</pre>
+        <div class="tw"><table><thead><tr><th>Entity</th><th>Sample points</th><th class="n">Merged point</th><th class="n">Spanning interval</th></tr></thead><tbody>
+          <tr><td>JPY_CME</td><td class="mono">&#x2212;3, &#x2212;1, &#x2212;2, &#x2212;13, &#x2212;2</td><td class="n">&#x2212;2</td><td class="n">[&#x2212;18, 0]</td></tr>
+          <tr><td>UST_2Y</td><td class="mono">6, 6, 5, 6, 6</td><td class="n">6</td><td class="n">[3, 9]</td></tr>
+        </tbody></table></div>
+        <p>Only one sample saw the size of the yen's move (&#x2212;13).</p></li>
+      <li><h3>From reply to answer</h3>
+        <p>On a ranking target the model keeps its point and the prior's band width is centred on it, so the yen's +11.29 drift is not used for the point.</p>
+        <div class="tw"><table><thead><tr><th>Stage</th><th>JPY_CME</th><th>UST_2Y</th></tr></thead><tbody>
+          <tr><td>Merged model point, spanning interval</td><td class="mono">&#x2212;2, [&#x2212;18, 0]</td><td class="mono">6, [3, 9]</td></tr>
+          <tr><td>Prior</td><td class="mono">11.29, [&#x2212;28.85, 71.00]</td><td class="mono">0, [&#x2212;7.54, 7.12]</td></tr>
+          <tr><td><b>Submitted: prior's half-width around the point</b></td><td class="mono"><b>&#x2212;2, [&#x2212;51.92, 47.92], rank 8</b></td><td class="mono"><b>6, [&#x2212;1.33, 13.33], rank 1</b></td></tr>
+        </tbody></table></div>
+        <p>Claims: the table's notes sentence, task-row values such as <code>"trailing_4wk_net_change_pct_oi": -25.68</code>, and the prior's anchor row. Of 60 reasons written, 3 were kept: crowded positions tend to reverse after large scheduled events; gold's +51.63% long is at risk of liquidation; natural gas short-covering.</p></li>
+      <li><h3>Outcome</h3>
+        <div class="tw"><table><thead><tr><th>Entity</th><th class="n">Truth (rank)</th><th class="n">Point (rank)</th><th class="n">Interval</th><th>Covered</th></tr></thead><tbody>
+          <tr><td>CORN_CBT</td><td class="n">7.24 (1)</td><td class="n">0.5 (6)</td><td class="n">[&#x2212;12.29, 13.29]</td><td class="hit">yes</td></tr>
+          <tr><td>UST_2Y</td><td class="n">3.22 (2)</td><td class="n">6.0 (1)</td><td class="n">[&#x2212;1.33, 13.33]</td><td class="hit">yes</td></tr>
+          <tr><td>WTI_NYMEX</td><td class="n">1.62 (3)</td><td class="n">&#x2212;1.0 (7)</td><td class="n">[&#x2212;6.93, 4.93]</td><td class="hit">yes</td></tr>
+          <tr><td>NATGAS_NYMEX</td><td class="n">0.78 (4)</td><td class="n">2.0 (4)</td><td class="n">[&#x2212;0.90, 4.90]</td><td class="hit">yes</td></tr>
+          <tr><td>UST_10Y</td><td class="n">&#x2212;1.68 (5)</td><td class="n">3.0 (2)</td><td class="n">[&#x2212;4.25, 10.25]</td><td class="hit">yes</td></tr>
+          <tr><td>EURO_FX</td><td class="n">&#x2212;4.22 (6)</td><td class="n">2.0 (3)</td><td class="n">[&#x2212;11.54, 15.54]</td><td class="hit">yes</td></tr>
+          <tr><td>ES_SP500</td><td class="n">&#x2212;4.66 (7)</td><td class="n">1.5 (5)</td><td class="n">[&#x2212;4.07, 7.07]</td><td class="miss">no</td></tr>
+          <tr><td>GOLD_CMX</td><td class="n">&#x2212;7.99 (8)</td><td class="n">&#x2212;5.0 (9)</td><td class="n">[&#x2212;15.14, 5.14]</td><td class="hit">yes</td></tr>
+          <tr><td>SILVER_CMX</td><td class="n">&#x2212;14.99 (9)</td><td class="n">&#x2212;6.0 (10)</td><td class="n">[&#x2212;13.49, 1.50]</td><td class="miss">no</td></tr>
+          <tr><td>JPY_CME</td><td class="n">&#x2212;17.08 (10)</td><td class="n">&#x2212;2.0 (8)</td><td class="n">[&#x2212;51.92, 47.92]</td><td class="hit">yes</td></tr>
+        </tbody></table></div>
+        <div class="tw"><table><thead><tr><th>Interval at each stage (r1)</th><th class="n">Mean IS</th><th class="n">Covered</th></tr></thead><tbody>
+          <tr><td>Model's spanning intervals</td><td class="n">34.9</td><td class="n">6 / 10</td></tr>
+          <tr><td>Prior band at the prior point</td><td class="n">44.7</td><td class="n">9 / 10</td></tr>
+          <tr><td>Prior half-width around the model point (submitted)</td><td class="n">28.8</td><td class="n">8 / 10</td></tr>
+        </tbody></table></div>
+        <p class="note">3 runs: Spearman &#x3C1; 0.590 / 0.596 / 0.511 (rescaled 0.795 / 0.798 / 0.755), MAE 5.78, IS 27.4, 0 false claims, 10 requests, 60 to 62 s. The model's points (MAE 5.75) beat no change (7.48).</p></li>
+    </ol>
+    <div class="lesson"><b>What it shows.</b> The model makes the whole ranking, and gets the broad order right: Treasuries and natural gas near the top, gold and silver near the bottom. Its points are compressed (&#x2212;6 to +6 against a truth from &#x2212;17 to +7), so the two biggest movers, corn and the yen, sit near zero. Each call sees five of the ten markets and ranks within them, while the scorer ranks all ten by the points. A kept reason can quote a point the merge did not submit (gold &#x2212;4.0 in a reason, &#x2212;5.0 submitted). The data's backtested width around the model's point gives the best interval of the three.</div>
+  </div>
+</section>
+
+<section id="limits">
+  <h2>Limits and open questions<small>Where the design may not carry over to the Final's held-out units, and what was done about it</small></h2>
+  <div class="prose">
+    <p>An audit on 8 Oct read every module for assumptions that hold on the practice units and may fail on held-out ones. The same day each finding was fixed in turn, with tests for the new shape (198 tests pass) and a check that the practice units do not move: priors, plans and copy prompts compared on all 11 units, and the 30 stored c4 runs answered again offline. Every fix but the prompt change left all of them identical.</p>
+  </div>
+  <div class="tw"><table>
+    <thead><tr><th>Finding</th><th>Status</th><th>What changed</th><th>Where</th></tr></thead>
+    <tbody>
+      <tr><td><b>An entity's documents together exceed one call</b></td><td><span class="chip pass">fixed</span></td><td>The planner gives the group's larger documents the largest shared cap at which they fit, instead of refusing the unit. An eps-growth bank given a second 10-Q is now planned in one call with both filings fitted.</td><td class="mono">plan.doc_caps</td></tr>
+      <tr><td><b>Calls beyond the 25-request cap</b></td><td><span class="chip pass">fixed</span></td><td>Copies take at most 12 requests with their corrections; the answer calls take the rest, and the planner fits documents smaller rather than plan more calls than fit. Starts and corrections draw on one locked budget, so concurrent calls cannot overshoot it.</td><td class="mono">plan.fewer &middot; pipeline._take</td></tr>
+      <tr><td><b>Assembly has no clock</b></td><td><span class="chip pass">fixed</span></td><td>Reasons are checked in rank order only until 3 are kept, each grader check reads only the documents the reasons cite, and selection stops 10 s past the soft deadline. The longest opening of a quote is found by bisection instead of one document scan per word. Replaying the 30 c4 runs went from 6 min 12 s to 20 s, with identical answers and reasons.</td><td class="mono">reply.selected &middot; cite.locate</td></tr>
+      <tr><td><b>An entity with nothing citable</b></td><td><span class="chip pass">fixed</span></td><td>The floor citation falls back to a value of the entity's own task row. The answer written when a unit fails to load cites each row's task values and takes a label from the vocabulary, so it passes the schema.</td><td class="mono">assemble.row_claim &middot; cli._from_task</td></tr>
+      <tr><td><b>Loader assumptions</b></td><td><span class="chip pass">fixed</span></td><td>Labels from <code>label_assertions</code> when <code>labels</code> is missing; text from <code>spans</code>; null names; the doc_id is the file name, as the scorer resolves it; datetime dates cut to the day; a <code>corpus_ref</code> that names nothing reads the whole corpus.</td><td class="mono">corpus.py</td></tr>
+      <tr><td><b>One bad series drops every prior</b></td><td><span class="chip pass">fixed</span></td><td>Monthly dates count steps in months; a one-release vintage table has no revision history; an entity whose series a method cannot read gets no prior and the others keep theirs.</td><td class="mono">forecast.day &middot; priors.priors</td></tr>
+      <tr><td><b>Family-shaped triggers</b></td><td><span class="chip pass">fixed</span></td><td>A change target is named by whole words (not <code>exchange_rate</code> or <code>return_on_equity</code>). A growth prior needs a level base (not a rate field), a copied value within a fifth to five times it, and measures growth against the base's size; percent by the name's words. Basis points scale a series only when it is in percent. The yield floor's A scales with the square root of the horizon outside the 27 to 63 weekdays it was fitted on.</td><td class="mono">types.CHANGE &middot; extract &middot; priors &middot; moves</td></tr>
+      <tr><td><b>Entities the model leaves out</b></td><td><span class="chip pass">fixed</span></td><td>An entity no reply answers and that has no prior is asked once more, within the budget and the clock. A row still unanswered takes the answered rows' median width and most common label, and their median point when its row has no value of the target to persist.</td><td class="mono">pipeline._again &middot; assemble</td></tr>
+      <tr><td><b>Parsing</b></td><td><span class="chip pass">fixed</span></td><td>A block with a label and no number keeps its label; labels match without case, quotes, markup or space/hyphen/underscore differences; numbers in e-notation read.</td><td class="mono">reply &middot; assemble._label</td></tr>
+      <tr><td><b>Late-row filter hid forward-looking rows</b></td><td><span class="chip pass">fixed</span></td><td>The model sees a document as written, forward-dated rows included (a calendar, a projection); only the computed history leaves them out.</td><td class="mono">render &middot; data.rows</td></tr>
+      <tr><td><b>Fixed clock</b></td><td><span class="chip pass">fixed</span></td><td>The hard deadline is the card's <code>[agent] timeout_sec</code> less 30 s (a tenth of a shorter limit); 570 s for the practice cards.</td><td class="mono">cli.hard_deadline</td></tr>
+      <tr><td><b>Trace write could cost the answer</b></td><td><span class="chip pass">fixed</span></td><td>A trace the disk refuses is reported and skipped.</td><td class="mono">pipeline.build_answer</td></tr>
+      <tr><td><b>The prompt omits task metadata</b></td><td><span class="chip pass">fixed</span></td><td>The task block now states the target, each label's definition and the cutoff and resolution dates (6 of 11 practice prompts leave the resolution date out; none restates the label definitions verbatim), and the worked sample no longer ties a label to a direction. Batches are unchanged. Live x3 on all 10 units: 30 of 30 runs clean, 0 false claims, postearn accuracy 0.667 to 1.000, estimate 0.651 to 0.673.</td><td class="mono">prompt.facts</td></tr>
+      <tr><td><b>Docstrings describe removed parts</b></td><td><span class="chip pass">fixed</span></td><td>pipeline, llm, reply and retrieve describe the code as it runs.</td><td class="mono">module docstrings</td></tr>
+      <tr><td><b>Ranking across calls</b></td><td><span class="chip fail">open</span></td><td>A ranking split into calls of five is ranked within each call; the scorer ranks all rows by the points.</td><td class="mono">plan</td></tr>
+      <tr><td><b>Reasons from one sample</b></td><td><span class="chip fail">open</span></td><td>Points come from the median sample, reasons from any sample, so a kept reason can state a value that was not submitted (cotpos: gold &minus;4.0 vs &minus;5.0).</td><td class="mono">reply.selected</td></tr>
+      <tr><td><b>An unused structured path</b></td><td><span class="chip fail">open</span></td><td><code>llm.Client.ask</code> (JSON with a pydantic schema) is used only by its tests.</td><td class="mono">llm.py</td></tr>
+    </tbody>
+  </table></div>
+
+  <h3>A measured choice, not a limit</h3>
+  <div class="prose"><p>When a prior has a band, the combined interval is the prior's band around the model's point and ignores the model's own interval. The walkthroughs measured it: on fomc-2024 the model's spanning intervals scored 827 against 489 for the band (198 with the yield floor), on cotpos 34.9 against 28.8, and on macrorev the band covered 7 of 12 against the model's 2.</p></div>
+
+  <h3>Handled from the start</h3>
+  <div class="prose"><ul>
+    <li>Documents dated after the cutoff, or undated, are dropped at load; none can reach a prompt, claim, reason or floor.</li>
+    <li>Ranking direction: points are the metric and ranks follow them, as the scorer reads them.</li>
+    <li>Corpus format: JSON documents with <code>text</code>, which is the only form the scorer accepts.</li>
+    <li>No code branches on unit ids or family slugs.</li>
+  </ul></div>
+
+  <h3>What the Final adds</h3>
+  <div class="prose"><ul>
+    <li>Many families with no published counterpart, across all three target types; 3 to 30 entity rows per unit.</li>
+    <li>Documents dated after the cutoff placed in corpora, and documents with an edited value, where the truth is what the documents support.</li>
+    <li>Reruns of top entries on fresh seeds, compared for reproducibility; canary strings (in <code>card.toml</code>) scored as contamination anywhere in the output.</li>
+    <li>The reasoning grade, 0.25 of the final score, on the units graded for reasoning.</li>
+    <li>Final resource limits (time, requests, output, context window) to be published before 13 Oct.</li>
+  </ul></div>
+</section>
+
+<section id="glossary">
+  <h2>Glossary</h2>
+  <dl class="glossary">
+    <dt>Unit</dt><dd>One prediction task: an entity table, a target, a frozen corpus, a cutoff.</dd>
+    <dt>Cutoff</dt><dd>The last date the documents may carry; the outcome resolves after it.</dd>
+    <dt>Prior</dt><dd>A forecast computed by code from an entity's history in the corpus: point, 90% band, the rows it used.</dd>
+    <dt>Decides</dt><dd>A prior whose point replaces the model's (revisions, growth from a copied level), shown to the model as a decided forecast.</dd>
+    <dt>Copy call</dt><dd>A model request that copies a printed figure with a quote and forecasts nothing.</dd>
+    <dt>Sample</dt><dd>One draw of all answer calls; up to 5 are merged per entity.</dd>
+    <dt>Claim</dt><dd>A cited span supporting one entity's forecast; false when off-entity, unsupported by its span, over 8,000 characters or content-free.</dd>
+    <dt>Floor</dt><dd>The fallback point and citation an entity takes when no reply gives one.</dd>
+    <dt>PQ, IQ, IS</dt><dd>Prediction quality, interval quality, and the interval score (width plus 20 times the miss at 90%).</dd>
+    <dt>Naive rule</dt><dd>The unit's private baseline answer; matching it scores 0.5 on a leg.</dd>
+    <dt>House</dt><dd>The organisers' model endpoint, Nemotron 3 Super, the only language model allowed.</dd>
+  </dl>
+</section>
+
+<footer>
+  Part of <a href="https://github.com/littila/explainable-forecasting-agent">explainable-forecasting-agent</a>, an entry to Agenthon 2026, Track 4: Explainability. Measurements are from the organisers' Development runs and local runs scored against the practice units' outcomes reconstructed from public data.
+</footer>
+</main>
+</div>
+<script>
+(function(){
+  var tabs=document.querySelectorAll('.tabs button');
+  function show(id){
+    tabs.forEach(function(b){var on=b.getAttribute('aria-controls')===id;b.setAttribute('aria-selected',on?'true':'false');b.tabIndex=on?0:-1;});
+    document.querySelectorAll('.panel').forEach(function(p){p.hidden=p.id!==id;});
+  }
+  tabs.forEach(function(b){
+    b.addEventListener('click',function(){show(b.getAttribute('aria-controls'));});
+    b.addEventListener('keydown',function(e){
+      var list=Array.prototype.slice.call(tabs),i=list.indexOf(b);
+      if(e.key==='ArrowRight'||e.key==='ArrowLeft'){e.preventDefault();var n=list[(i+(e.key==='ArrowRight'?1:list.length-1))%list.length];n.focus();show(n.getAttribute('aria-controls'));}
+    });
+  });
+  var h=location.hash.replace('#','');
+  if(h&&document.getElementById(h)&&document.getElementById(h).classList.contains('panel'))show(h);
+})();
+</script>
+</body>
+</html>

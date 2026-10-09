@@ -1,0 +1,17 @@
+# The submission image's ENTIRE dependency set.
+#
+# `qfbench2-common` is NOT here. `solution/preflight.py` needs exactly one file from it --
+# analysis.schema.json -- and installing the package to get it pulls numpy and scipy. The image
+# is pulled inside the per-unit timeout (SUBMISSION_CLI.md), so weight is not free. The schema is
+# vendored at solution/analysis.schema.json instead and a test asserts the two never diverge.
+#
+# `qfbench2-track-analysis` is not here either: it is the SCORER.
+# Pinned to the versions this agent was measured on. Verification reruns the submission and
+# compares statistically (SUBMISSION_CLI.md rule 4), so a floating range is a reproducibility
+# risk for no benefit.
+openai==3.16.2
+pydantic==2.13.5
+jsonschema==4.26.0
+# Exact prompt-token counts in the model's own tokenizer (solution/tokens.py); the planner and the
+# fit of large filings were measured with it. The tokenizer file comes in with the Dockerfile.
+tokenizers==0.23.2

@@ -1,5 +1,8 @@
 # Explainable Forecasting Agent
 
+[![tests](https://github.com/littila/explainable-forecasting-agent/actions/workflows/ci.yml/badge.svg)](https://github.com/littila/explainable-forecasting-agent/actions/workflows/ci.yml)
+[![license: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
+
 An LLM agent that answers forecasting questions about companies, bonds and macro series from a frozen corpus of
 financial documents, and explains every number it submits. For each entity in a task it gives a label or a value, a 90%
 prediction interval, quoted evidence placed verbatim in the source documents, and up to three graded reasons. Code

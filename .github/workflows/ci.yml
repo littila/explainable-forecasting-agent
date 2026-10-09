@@ -10,5 +10,6 @@ jobs:
       - uses: astral-sh/setup-uv@v6
       - run: uv sync
       - run: scripts/fetch_units.sh
+      - run: scripts/fetch_tokenizer.sh
       - run: uv run ruff check solution
       - run: uv run pytest -q

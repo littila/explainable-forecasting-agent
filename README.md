@@ -139,7 +139,7 @@ solution/            the agent: one module per stage (pipeline, plan, render, pr
                      signals, moves, reply, cite, assemble, llm, cli) and solution/tests
 baselines/           the organisers' claim and reason checks, used before writing (MIT)
 docs/                design, results, walkthroughs of five units, data provenance, and a full HTML guide
-scripts/             fetch the practice units; run one unit
+scripts/             fetch the practice units and the tokenizer; run one unit
 Dockerfile           the submission image (linux/amd64)
 ```
 
@@ -148,6 +148,7 @@ Dockerfile           the submission image (linux/amd64)
 ```bash
 uv sync                      # Python 3.13; installs the organisers' scorer for the tests
 scripts/fetch_units.sh       # the practice units from the official Track 4 repository
+scripts/fetch_tokenizer.sh   # the model's tokenizer, for exact token counts as in the image
 uv run pytest                # 198 tests, about a minute
 
 export OPENROUTER_API_KEY=...            # any OpenAI-compatible endpoint serving the model

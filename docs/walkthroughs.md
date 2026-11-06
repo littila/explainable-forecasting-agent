@@ -3,7 +3,8 @@
 Five practice units followed through one stored run (build c4, run r1), each with a different split of work between
 code and model. Numbers come from the run's request trace and answer, from replaying the code offline (the replay
 reproduces every submitted point and interval), and from the units' outcomes reconstructed from public data. Since
-build c5 the prompts also open with the task's facts (target, label definitions, dates); the rest is unchanged.
+build c5 the prompts also open with the task's facts (target, label definitions, dates), and the Final build's yield
+floor has no fitted constant (the yield walkthrough shows the Final rule); the rest is unchanged.
 
 ## EPS growth of eight banks: a copied level decides
 
@@ -68,14 +69,14 @@ on 2023-08-06. Accuracy 7 of 8 in every run.
 The rates snapshot holds 11 daily closes, too few to backtest a 34-day move, so the prior is "no change" with the daily
 volatility scaled by the square root of the horizon. The model sets the point from the documents (the 50 bp cut, the
 projections against market pricing), sampled five times: 15, 45, 15, 15, -5 for the 2-year. A copy call finds the one
-older yield a sentence states (the 2-year at 4.77% on 2024-07-01, a 118 bp move), which sets a floor of
-`hypot(28, 1.05 x 118 x sqrt(34/58)) = 98.9` bps on every interval.
+older yield a sentence states (the 2-year at 4.77% on 2024-07-01, a 118 bp move over 58 weekdays), which sets a
+floor of `118 x sqrt(34/58) = 90.4` bps on every interval.
 
 | Interval | Mean interval score | Covered |
 |---|---|---|
 | Model's spanning intervals | 827 | 0 of 6 |
 | Prior band around the model's point | 489 | 0 of 6 |
-| With the yield floor (submitted) | 198 | 6 of 6 |
+| With the yield floor (submitted) | 181 | 6 of 6 |
 
 **What it shows.** The model reads the direction right (yields rose) but sizes the move at +2 to +15 bps against a
 realised +54 to +78; three short documents cannot tell the size of a seven-week move. The data's contribution is the

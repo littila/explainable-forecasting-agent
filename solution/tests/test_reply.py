@@ -105,3 +105,12 @@ def test_a_block_with_a_label_and_no_number_keeps_its_label_and_numbers_read_in_
     assert (blocks["B"]["point_forecast"], blocks["B"]["int_lo"], blocks["B"]["int_hi"]) == (0.0012, -0.002, 0.005)
     unit = UNIT.model_copy(update={"entities": [e.model_copy(update={"entity_id": x}) for e, x in zip(UNIT.entities, "AB")]})
     assert set(reply.predictions(unit, blocks)) == {"A", "B"}
+
+
+def test_an_entity_id_with_a_space_is_read_quoted_and_an_unquoted_one_still_is() -> None:
+    from solution.reply import parse
+    text = ('<forecasts>\n<entity id="S&P 500">\npoint_forecast: 1.5\nint_lo: 1\nint_hi: 2\n</entity>\n'
+            '<entity id=EURUSD>\npoint_forecast: 2\nint_lo: 1\nint_hi: 3\n</entity>\n'
+            '<entity id="SILVER_CMX>\npoint_forecast: 3\nint_lo: 1\nint_hi: 4\n</entity>\n</forecasts>')
+    assert {e: b["point_forecast"] for e, b in parse(text)[1].items()} == {"S&P 500": 1.5, "EURUSD": 2.0,
+                                                                         "SILVER_CMX": 3.0}

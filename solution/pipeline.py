@@ -10,7 +10,8 @@ its interval floor (`moves`). The replies are merged per entity (`reply.merge`),
 and up to 3 reasons the grader would judge are chosen (`reply.selected`).
 
 The budget: copies take at most COPY_REQUESTS of the 25 requests, the earlier-level copy keeps EARLIER_REQUESTS, the
-answer calls take the rest, and the planner fits documents smaller rather than plan more calls than that.
+answer calls take the rest, and the planner fits documents smaller rather than plan more calls than that. A unit no
+plan fits is asked with its entity rows alone (`plan.rows_only`), and one whose copies cannot be planned goes without.
 
 The clock: with a deadline, a call's timeout is what is left, none starts with less than MIN_CALL left, those in flight
 at the deadline are abandoned, and reasons are chosen until REASONS_AFTER past it. With the floor on (submission) an
@@ -192,7 +193,10 @@ def _copies(client: llm.Client, unit: Unit, qualified: dict[str, tuple[str, floa
     """Levels of the `qualified` entities copied from their documents (`extract`), and what was left out."""
     if not qualified:
         return {}, []
-    calls = extract.calls(unit, qualified, kind, most_calls=None if kind.dated else COPY_CALLS)
+    try:
+        calls = extract.calls(unit, qualified, kind, most_calls=None if kind.dated else COPY_CALLS)
+    except Exception as exc:  # noqa: BLE001 -- a unit is answered without copies rather than not at all
+        return {}, [f"no extraction plan: {type(exc).__name__}: {exc}"]
     limit = llm.MAX_REQUESTS if kind.dated else COPY_REQUESTS
     if client.requests + len(calls) > limit:
         return {}, [f"{len(calls)} extraction calls would pass the request cap"]
@@ -289,9 +293,9 @@ def build_answer(unit: Unit, *, deadline_at: float | None = None, floor: bool = 
     room = llm.MAX_REQUESTS - client.requests - keep
     try:
         calls = plan.calls(unit, decided, most_calls=room)
-    except ValueError as exc:
-        print(f"  PLAN {exc}", flush=True)
-        return floor_answer(unit, str(exc))
+    except Exception as exc:  # noqa: BLE001 -- the rows alone still give the model something to answer from
+        print(f"  PLAN {type(exc).__name__}: {exc}; asking with the entity rows only", flush=True)
+        calls = plan.rows_only(unit, decided)
     # samples steady the model's points; when every entity's point is decided by its prior one draw is enough
     every_decided = len(found) == len(unit.entities) and all(f.decides for f in found.values())
     drawn = 1 if every_decided else samples_for(len(calls), room)

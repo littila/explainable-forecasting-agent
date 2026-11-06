@@ -27,7 +27,7 @@ dev = [
 package = false
 
 [tool.uv.sources]
-qfbench2-track-analysis = { git = "https://github.com/Agenthon-2026/track4-analysis-public", rev = "1c744e1d6725340643a533f436517d72b53ca0e1" }
+qfbench2-track-analysis = { git = "https://github.com/Agenthon-2026/track4-analysis-public", rev = "eef782bf5a92f4cc9a1a1522d766adde9f8a09a5" }
 qfbench2-common = { git = "https://github.com/Agenthon-2026/Agenthon2026-public.git", subdirectory = "common", rev = "v2.5.1" }
 
 [tool.pytest.ini_options]

@@ -52,7 +52,10 @@ NOTICE = re.compile(r"\bmodel inference failed\b", re.IGNORECASE)
 #: The longest span a claim may cite: past it the scorer counts the claim false, whatever it says.
 SPAN_MAX = 8_000
 #: The labels a floor or an invalid label falls back to, when the vocabulary names one.
-NEUTRAL = ("inline", "unchanged", "flat", "none", "no_event")
+NEUTRAL = ("inline", "in_line", "unchanged", "no_change", "flat", "neutral", "hold", "stable", "none", "no_event")
+#: An interval narrower than this share of its point's size (or of 1) has zero width: a reply rounds the bounds it
+#: echoes, so they differ from the computed point in the last digits.
+ZERO_WIDTH = 1e-4
 
 
 #: An entity field that gives the target's latest known value.
@@ -81,6 +84,10 @@ def _finite(value: object, fallback: float = 0.0) -> float:
     return out if math.isfinite(out) else fallback
 
 
+def _width(row: dict) -> float:
+    return row["interval"]["hi"] - row["interval"]["lo"]
+
+
 def _folded_label(label: object) -> str:
     return re.sub(r"[\s\-]+", "_", str(label).strip().strip("\"'*`_ ").strip().lower())
 
@@ -101,8 +108,8 @@ def _label(unit: Unit, given: object, repairs: list[str], entity_id: str) -> str
 
 def interval(unit: Unit, point: float, lo: object, hi: object, repairs: list[str], entity_id: str) -> dict:
     """The interval as the model gave it, at the unit's level. The scorer refuses only a non-finite or inverted one, so
-    a missing or non-finite bound takes the point and an inverted pair is swapped; a zero-width interval, or one that
-    leaves out the point, is valid and kept as written."""
+    a missing or non-finite bound takes the point and an inverted pair is swapped; one that leaves out the point is
+    valid and kept as written (a zero-width one is widened in `assemble`)."""
     lo_f, hi_f = _finite(lo, point), _finite(hi, point)
     if math.isnan(_finite(lo, math.nan)) or math.isnan(_finite(hi, math.nan)):
         repairs.append(f"{entity_id}: interval [{lo!r}, {hi!r}] has a missing bound -> the point")
@@ -218,6 +225,14 @@ def assemble(unit: Unit, preds: dict[str, dict], *, floor: bool = False) -> tupl
         if not preds.get(e.entity_id, {}).get("label") and (labels := [r["label"] for r in answered if r.get("label")]):
             row["label"] = Counter(labels).most_common(1)[0][0]
         repairs.append(f"{e.entity_id}: point, interval and label from the {len(answered)} answered entities")
+    # a zero-width interval (a decided point echoed as its own bounds) holds the realized value with probability nil;
+    # it takes, around its point, the median width of the entities with a positive one
+    flat = {r["entity_id"] for r in rows if _width(r) <= ZERO_WIDTH * max(1.0, abs(r["point_forecast"]))}
+    if widths := [_width(r) for r in rows if r["entity_id"] not in flat]:
+        half = statistics.median(widths) / 2
+        for row in (r for r in rows if r["entity_id"] in flat):
+            row["interval"] |= {"lo": row["point_forecast"] - half, "hi": row["point_forecast"] + half}
+            repairs.append(f"{row['entity_id']}: zero-width interval -> the median width of {len(widths)} entities")
     for e, row in zip(unit.entities, rows):
         if row["claims"]:
             continue

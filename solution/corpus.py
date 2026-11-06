@@ -68,7 +68,7 @@ def labels(unit_dir: pathlib.Path) -> dict[str, tuple[list[str] | None, bool]]:
     for path in (unit_dir / "manifest.json", unit_dir / "corpus" / "manifest.json"):
         if path.is_file():
             files = json.loads(path.read_text(encoding="utf-8")).get("files") or []
-            return {pathlib.Path(f["path"]).stem: (list(f["entity_ids"]) if "entity_ids" in f else None,
+            return {pathlib.Path(f["path"]).stem: (list(f["entity_ids"]) if f.get("entity_ids") is not None else None,
                                                   bool(f.get("shared")))
                     for f in files if isinstance(f, dict) and f.get("role") == "corpus" and f.get("path")}
     return {}
@@ -85,7 +85,9 @@ def load_unit(unit_dir: str | pathlib.Path,
     shown to predate the cutoff. Citing one fails the unit.
 
     **Each document carries its manifest label** (`labels`): the entities it is about, or market-wide. That decides
-    which documents an entity's claims may cite (`render.owned`).
+    which documents an entity's claims may cite (`render.owned`). When the unit has a manifest, a corpus file it does
+    not declare is not loaded: the scorer resolves citations through the manifest, so citing that file would refuse
+    the unit.
 
     **The corpus belongs to the entity, not the unit.** Every entity carries its own `corpus_ref`.
     All eleven public units set it to "corpus/" for every row, so the distinction is invisible
@@ -114,6 +116,8 @@ def load_unit(unit_dir: str | pathlib.Path,
             doc = cache[path]
             if doc is None:
                 continue  # embargoed: undated or post-cutoff
+            if marks and doc.doc_id not in marks:
+                continue  # not in the manifest: a citation to it would not resolve, which refuses the unit
             docs[doc.doc_id] = doc
             doc_ids.append(doc.doc_id)
         entities.append(Entity(

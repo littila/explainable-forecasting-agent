@@ -82,3 +82,9 @@ def test_a_copied_level_far_from_its_base_is_left_out() -> None:
     line = 'BAC | value: 6,975 | period: Three Months Ended June 30 2024 | quote: "Net income 6,975 7,410"'
     got, dropped = extract.levels(unit, line, qualified)
     assert got == {} and dropped == ["BAC: the value is not between a fifth and five times the base; copy the same quantity"]
+
+
+def test_a_copied_line_for_an_entity_id_with_a_space_is_read() -> None:
+    from solution.extract import LINE, NONE
+    m = LINE.match('S&P 500 | value: 4,500 | period: 2024-06 | quote: "the index closed at 4,500"')
+    assert m and m.group(1) == "S&P 500" and NONE.match("- S&P 500 | none").group(1) == "S&P 500"

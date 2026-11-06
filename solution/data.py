@@ -2,9 +2,9 @@
 
 A table is a header line of cells followed by rows whose first cell is a date (`2024-10 | 0.31 | 0.22`), cells
 separated by `|` or tabs; the header names each row's cells, lowercased. A vintage table is a table whose columns are
-`as_of_<release date>`: one reference period per row, its estimate as published on each release. Rows dated after the
-cutoff, and columns headed by a date after it, are not history: the model sees them, a computation does not. Every value
-keeps the span of its row, so a computation can cite the rows it used.
+`as_of_<release date>`: one reference period per row, its estimate as published on each release. The embargo is the
+document's date (`corpus.load_unit`): every row of a document that passes it is read, whatever date the row carries,
+as the model reads it. Every value keeps the span of its row, so a computation can cite the rows it used.
 """
 
 from __future__ import annotations
@@ -18,7 +18,6 @@ DATE = re.compile(r"^\d{4}-\d{2}(?:-\d{2})?$")
 SEPARATOR = re.compile(r"^:?-{2,}:?$")
 NUMBER = re.compile(r"[+-]?(?:\d{1,3}(?:,\d{3})+|\d+)(?:\.\d+)?|[+-]?\.\d+")
 VINTAGE = re.compile(r"as_of_(\d{4}-\d{2}-\d{2})")
-KEY_DATE = re.compile(r"\d{4}[-_]\d{2}[-_]\d{2}")
 #: Where a value stands: its document and the [start, end) of its row in the original text.
 Span = tuple[str, int, int]
 
@@ -40,21 +39,17 @@ class Point:
 
 
 def cells(line: str) -> list[str] | None:
-    """A table line's cells, split on `|` (else tabs); None for a line that is not one."""
+    """A table line's cells, split on `|` (else tabs), a Markdown row's outer pipes dropped; None for a line that is
+    not one."""
     sep = "|" if "|" in line else "\t" if "\t" in line else None
+    if sep == "|" and line.strip().startswith("|") and line.strip().endswith("|"):
+        line = line.strip()[1:-1]
     return [c.strip() for c in line.split(sep)] if sep else None
 
 
-def late(date: str, cutoff: str) -> bool:
-    """Whether a date (a month counts from its first day; `_` may stand for `-`) falls after the cutoff."""
-    date = date.replace("_", "-")
-    return (date if len(date) == 10 else date + "-01") > cutoff
-
-
 def rows(unit: Unit) -> list[Row]:
-    """Every dated table row of the unit's documents before the cutoff, in document order."""
+    """Every dated table row of the unit's documents, in document order."""
     if unit.task_id not in _ROWS:
-        cutoff = str(unit.cutoff_date)[:10]
         out = []
         for d in unit.docs:
             head, at = None, 0
@@ -67,9 +62,8 @@ def rows(unit: Unit) -> list[Row]:
                     continue
                 elif not DATE.match(row[0]):
                     head = [c.lower() for c in row]
-                elif head and len(row) <= len(head) and not late(row[0], cutoff):
-                    named = {h: v for h, v in zip(head[1:], row[1:])
-                             if v and not any(late(x, cutoff) for x in KEY_DATE.findall(h))}
+                elif head and len(row) <= len(head):
+                    named = {h: v for h, v in zip(head[1:], row[1:]) if v}
                     if named:
                         out.append(Row((d.doc_id, start, start + len(line.rstrip())), row[0], named))
         _ROWS[unit.task_id] = out

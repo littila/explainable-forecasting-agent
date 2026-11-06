@@ -25,8 +25,8 @@ OPENROUTER = "https://openrouter.ai/api/v1"
 
 #: SUBMISSION_CLI.md: 25 admitted requests per unit, at most 4,000 output tokens per call.
 MAX_REQUESTS, MAX_OUTPUT = 25, 4_000
-#: The harness sets QFBENCH_SEED and rule 4 asks for the seed pinned. OpenRouter does not honour it.
-SEED = int(os.environ.get("QFBENCH_SEED") or 20260731)
+#: A constant (SUBMISSION_CLI.md rule 4: the rerun's QFBENCH_SEED is fresh, so a seed meant to repeat is in the code).
+SEED = 20260731
 #: Greedy, for stable predictions (2026-09-28): at 0, EXAMPLE's label held on 6 of 6 OpenRouter runs.
 TEMPERATURE, TOP_P = 0.0, 0.95
 #: A call with no deadline (development) is bounded by this.

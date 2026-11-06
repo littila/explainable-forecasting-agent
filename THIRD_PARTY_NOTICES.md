@@ -7,7 +7,7 @@ each under its own terms.
 
 | Path | Origin | License |
 |---|---|---|
-| `baselines/guardrails_example/citation_rail.py`, `baselines/guardrails_example/__init__.py` | [Agenthon-2026/track4-analysis-public](https://github.com/Agenthon-2026/track4-analysis-public) at `1c744e1`, unmodified. The agent runs the organisers' own reason and claim checks before it writes an answer. | MIT (text below) |
+| `baselines/guardrails_example/citation_rail.py`, `baselines/guardrails_example/__init__.py` | [Agenthon-2026/track4-analysis-public](https://github.com/Agenthon-2026/track4-analysis-public) at `eef782b` (scorer 5.3.0), unmodified. The agent runs the organisers' own reason and claim checks before it writes an answer. | MIT (text below) |
 | `solution/analysis.schema.json` | The Track 4 answer schema from the shared toolkit `qfbench2-common` v2.5.1, [Agenthon-2026/Agenthon2026-public](https://github.com/Agenthon-2026/Agenthon2026-public), unmodified; a test checks it against the toolkit's copy. | CC BY-NC 4.0 |
 | `solution/tokenizer/LICENSE`, `solution/tokenizer/NOTICE` | NVIDIA Nemotron 3 Super tokenizer licence and notice. The tokenizer file itself is not in this repository: the Docker build downloads it from Hugging Face by revision and checksum. | NVIDIA Nemotron Open Model License |
 

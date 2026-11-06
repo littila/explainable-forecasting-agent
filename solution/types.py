@@ -10,7 +10,9 @@ from pydantic import BaseModel, Field, model_validator
 TargetType = Literal["classification", "regression", "ranking"]
 #: A target named as a change over the horizon (a move, growth or return), by whole words of its name; "return on"
 #: (equity, assets) names a ratio, and "exchange" is not "change".
-CHANGE = re.compile(r"(?<![a-z])(?:change|growth|returns?)(?![a-z])(?!_on(?![a-z]))")
+CHANGE = re.compile(r"(?<![a-z])(?:change|growth|moves?|returns?)(?![a-z])(?!_on(?![a-z]))")
+#: A quantity in basis points, by whole words of a name or a unit field: bps, bp, basis_points.
+BPS = re.compile(r"(?<![a-z])(?:bps?|basis_points?)(?![a-z])")
 
 #: The embargo compares dates as plain strings, which is only correct while both sides are
 #: zero-padded ISO. All 69 public documents and all 9 cutoffs are -- but a held-out family
@@ -78,6 +80,12 @@ class Unit(BaseModel):
     @property
     def change_target(self) -> bool:
         return bool(CHANGE.search(self.target_name.lower()))
+
+    @property
+    def yield_change(self) -> bool:
+        """A target that is a yield's change in basis points (a yield as a level is in percent)."""
+        name = self.target_name.lower()
+        return "yield" in name and bool(BPS.search(name))
 
     @model_validator(mode="after")
     def _classification_has_a_vocabulary(self) -> Unit:

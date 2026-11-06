@@ -2,7 +2,7 @@
 
 A document is shown in a <doc> tag with its title, date and source, as it was written: a table row dated after the
 cutoff in a document dated before it (an auction calendar, a projection, a curve by contract month) was known on the
-document's date. Only the computed history leaves such rows out (`data.rows`). An original text larger than a call can
+document's date, and the computed history reads it too (`data.rows`). An original text larger than a call can
 hold is fitted: whitespace collapsed, then the windows that rank best against the task, in document order with each
 gap marked (`fit`). A quote is found in the original text whatever was left out of the view (`cite.locate`).
 """
@@ -19,12 +19,15 @@ from solution.types import Doc, Unit
 
 #: A call's prompt takes at most CONTEXT_SHARE of WINDOW tokens. A document may take at most DOC_MAX of them: the
 #: call's share less PROMPT_RESERVE for the prompt and an entity's small companion documents. A larger one is fitted
-#: in windows of WINDOW_CHARS; each gap marker is counted as GAP_TOKENS.
+#: in windows of WINDOW_CHARS, or of half its cap in characters when that is smaller (so the best window fits a small
+#: cap even where the text is denser than its average), and never under MIN_WINDOW_CHARS (about two sentences); each
+#: gap marker is counted as GAP_TOKENS.
 WINDOW = 262_144
 CONTEXT_SHARE = 0.4
 PROMPT_RESERVE = 8_192
 DOC_MAX = int(CONTEXT_SHARE * WINDOW) - PROMPT_RESERVE
 WINDOW_CHARS = 16_000
+MIN_WINDOW_CHARS = 200
 GAP_TOKENS = 16
 
 _SHOWN: dict[tuple[str, str, int], str] = {}
@@ -68,14 +71,15 @@ def shown(unit: Unit, k: int, d: Doc, cap: int = DOC_MAX) -> str:
 
 def fit(text: str, query: str, cap: int = DOC_MAX) -> str:
     """`text` within `cap` tokens: as it is when it fits; else with its whitespace collapsed; else its windows
-    (`windows`) ranked by BM25 against `query`, kept best-first while they fit, shown in document order with each
-    gap marked."""
+    (`windows`, sized to the cap) ranked by BM25 against `query`, kept best-first while they fit, shown in document
+    order with each gap marked."""
     if prompt_tokens(text) <= cap:
         return text
     text = re.sub(r"\s+", " ", text).strip()
-    if prompt_tokens(text) <= cap:
+    tokens = prompt_tokens(text)
+    if tokens <= cap:
         return text
-    spans = windows(text)
+    spans = windows(text, max(MIN_WINDOW_CHARS, min(WINDOW_CHARS, len(text) * (cap - GAP_TOKENS) // (2 * tokens))))
     parts = [text[a:b] for a, b in spans]
     cost = [prompt_tokens(x) + GAP_TOKENS for x in parts]
     ranked = retrieve.BM25(parts).ranked(query)
@@ -97,15 +101,16 @@ def fit(text: str, query: str, cap: int = DOC_MAX) -> str:
     return " ".join(out)
 
 
-def windows(text: str) -> list[tuple[int, int]]:
-    """`text` cut into contiguous spans of about WINDOW_CHARS, each ended at a sentence end in its second half when
-    there is one, else at a space."""
+def windows(text: str, size: int | None = None) -> list[tuple[int, int]]:
+    """`text` cut into contiguous spans of about `size` characters (WINDOW_CHARS by default), each ended at a sentence
+    end in its second half when there is one, else at a space."""
+    size = size or WINDOW_CHARS
     out, i = [], 0
     while i < len(text):
-        j = min(len(text), i + WINDOW_CHARS)
+        j = min(len(text), i + size)
         if j < len(text):
-            end = text.rfind(". ", i + WINDOW_CHARS // 2, j)
-            j = end + 2 if end > 0 else (text.rfind(" ", i + WINDOW_CHARS // 2, j) + 1 or j)
+            end = text.rfind(". ", i + size // 2, j)
+            j = end + 2 if end > 0 else (text.rfind(" ", i + size // 2, j) + 1 or j)
         out.append((i, j))
         i = j
     return out

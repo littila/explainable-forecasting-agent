@@ -24,7 +24,7 @@ changes in the 10-unit mean of a local estimate (reconstructed outcomes, stand-i
    segmentation stack. The code shrank 44% and the score held.
 5. **Triggered by data shape, never by unit names.** A component fires when the data has its shape, matched by whole
    words: a vintage table, a dated column named like the entity, a numeric `prior_*` base that names a level, a credit
-   label set, a `yield_change_bps` target. A shape the practice units lack is handled rather than refused.
+   label set, a yield target in basis points. A shape the practice units lack is handled rather than refused.
 6. **There is always an answer.** A valid answer is written before any model call; even a unit that fails to load gets
    one that passes the schema. Deadlines come from the unit's time limit; no unit makes more than 25 requests.
 7. **Nothing learned from outcomes inside the image.** Methods are chosen per run by backtests on the unit's own
@@ -56,21 +56,23 @@ with their manifest labels (`entity_ids` or `shared`), and the task table as JSO
 dated after the cutoff is never constructed, so the stale-evidence trap of the Final cannot reach retrieval,
 prompting or citation. The loader also accepts shapes the scorer allows but the practice units do not use: a label
 vocabulary given only as definitions, document text in spans, null names, dates with a time part, a `corpus_ref` that
-names nothing. A document's id is its file name, which is how the scorer resolves citations.
+names nothing, a null `entity_ids` label. A document's id is its file name, which is how the scorer resolves
+citations; with a manifest, a corpus file it does not declare is not loaded, since citing it would refuse the unit.
 
 ### The view (`render.py`, `retrieve.py`, `tokens.py`)
 
 Each document is shown as its original text in a `<doc>` tag with its title, date, source and manifest label,
 forward-dated rows included (in a document dated before the cutoff they are calendars or projections, known on the
 document's date). A document over its cap has its whitespace collapsed; if still too big it is cut into windows of
-about 16,000 characters, ranked by BM25 against a query built from the task, and the best windows that fit are shown
+about 16,000 characters (or half its cap in characters when that is smaller, never under 200, so a small cap still
+shows the best passage), ranked by BM25 against a query built from the task, and the best windows that fit are shown
 in document order with gap markers. Token counts are exact, in the model's own tokenizer.
 
 | Constant | Value |
 |---|---|
 | `WINDOW`, `CONTEXT_SHARE` | 262,144 tokens, 0.4 |
 | `DOC_MAX` | 96,665 tokens per document (smaller when the plan sets a cap) |
-| `WINDOW_CHARS` | 16,000 |
+| `WINDOW_CHARS`, `MIN_WINDOW_CHARS` | 16,000, 200 |
 
 Head-and-tail truncation kept 0 of 9 going-concern passages in one issuer's 10-K; BM25 kept all 9. Replacing an
 earlier segmentation into numbered lines with plain text left all 57 priors unchanged, cut prompts 17 to 25% on table
@@ -78,8 +80,9 @@ units and raised the estimate from 0.646 to 0.659.
 
 ### Tables as data (`data.py`)
 
-A table is a header line of cells followed by rows whose first cell is a date, separated by `|` or tabs. Rows dated
-after the cutoff, and columns headed by a later release, are not history. Every value keeps its row's span, so a
+A table is a header line of cells followed by rows whose first cell is a date, separated by `|` or tabs (a Markdown
+row's outer pipes dropped). The embargo is the document's date: every row of an admitted document is read, as the
+model reads it. Every value keeps its row's span, so a
 computation cites exactly the rows it used. Two views: one column's series in date order, and a vintage table (columns
 `as_of_<release>`) giving each reference period's estimate at each release.
 
@@ -123,17 +126,21 @@ The decided label goes on the entity's line before the call. Without it, credit-
 
 ### Yield floor (`moves.py`)
 
-For a yield-change target, a least half-width `hypot(a, K x the largest stated move scaled to the horizon)`, with
-`A = 28 bps`, `K = 1.05` fitted on 58 FOMC meetings resolved before the practice cutoffs, and `a = A` within the 27 to 63
-weekdays those meetings spanned (scaled by the square root of the horizon outside them). The model writes about
-+-10 bps for a yield change whatever the documents say; the floor turned 0 of 6 covered into 6 of 6 on one unit.
+For a yield-change target (a yield in basis points: `bps`, `bp` or `basis_points` in its name), a least half-width
+equal to the largest move the documents state between an earlier level and the cutoff level, scaled to the horizon
+by the square root of time; none when no earlier level is stated. No constant is fitted: an earlier form added fitted
+constants (28 bps, a factor 1.05) from past FOMC meetings, which the organisers' ruling on held-out cutoffs ruled out
+for the Final. The model writes about +-10 bps for a yield change whatever the documents say; the floor turned 0 of 6
+covered into 6 of 6 on one unit.
 
 ### Plan (`plan.py`)
 
 The fewest calls: entities that share their own documents together; at most 6 per call by the output budget
 (`(0.85 x 4,000 - 600) / 460`). A group whose documents exceed the call (two large filings, a filing about two
 entities) gets the largest shared cap at which it fits; with a request budget, every document is lowered to the
-largest cap at which the plan fits that many calls.
+largest cap at which the plan fits that many calls. A call shows at most its budget over 1,000 tokens of documents
+(`MIN_DOC`), an entity with more showing its latest that many (the rest stay citable), and a unit no plan fits is
+asked with its entity rows alone rather than answered from its floor.
 
 ### Prompt (`prompt.py`)
 
@@ -146,7 +153,7 @@ and cheaper. Stating the label definitions fixed a borderline post-earnings labe
 
 ### Calls and samples (`pipeline.py`, `llm.py`)
 
-Temperature 0, seed pinned, thinking off on the House route. Rate limits and server errors are retried with backoff;
+Temperature 0, a constant seed (verification reruns get a fresh `QFBENCH_SEED`), thinking off on the House route. Rate limits and server errors are retried with backoff;
 after three unreachable calls in a row the unit is answered from what is in hand. At most 4 calls and 200,000 prompt
 tokens in flight; starts and corrections draw on one locked request budget. Answer calls are drawn 5 times when that
 fits 15 requests and what the copies left, else 3, else once; samples are worth 0.014 on the mean.

@@ -1,7 +1,7 @@
 """Forecasts computed from a series' own history in the corpus (v5.0, `.local/plans/2026-10-05-v5-design.md`).
 
-Three forms, each a fixed menu of standard methods chosen per run by a backtest on the series' own pre-cutoff history
-(nothing is fitted offline or on outcomes; `docs/TRAINING-POLICY.md`):
+Three forms, each a fixed menu of standard methods chosen per run by a backtest on the series' own history in the
+documents (nothing is fitted offline or on outcomes; `docs/TRAINING-POLICY.md`):
 
 - `next_value`: the next observation of the series (an auction's bid-to-cover after the past auctions of its tenor).
   Menu: last value, mean of the last 3 or 6, mean or median of all. The method with the smallest mean absolute

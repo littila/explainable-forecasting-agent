@@ -165,6 +165,23 @@ def test_an_unanswered_entity_takes_the_answered_ones_width_and_label() -> None:
     assert any("from the 5 answered entities" in r for r in repairs)
 
 
+def test_a_zero_width_interval_takes_the_median_width_of_the_others() -> None:
+    preds = {"E0": {"point_forecast": 41.339491916859124, "interval_lo": 41.3395, "interval_hi": 41.3395},
+             "E1": {"point_forecast": 1.0, "interval_lo": -1.0, "interval_hi": 3.0},
+             "E2": {"point_forecast": 2.0, "interval_lo": 0.0, "interval_hi": 8.0}}
+    answer, repairs = _assemble(_unit(n=3), preds)
+    rows = {r["entity_id"]: r["interval"] for r in answer["entity_predictions"]}
+    assert rows["E0"]["hi"] - rows["E0"]["lo"] == pytest.approx(6.0)
+    assert rows["E0"]["lo"] < 41.339491916859124 < rows["E0"]["hi"]
+    assert (rows["E1"]["lo"], rows["E1"]["hi"]) == (-1.0, 3.0)
+    assert any("E0: zero-width interval" in r for r in repairs)
+
+
+def test_zero_width_intervals_stay_when_no_entity_has_a_width() -> None:
+    answer, _ = _assemble(_unit(), {"E0": {"point_forecast": 1.0}, "E1": {"point_forecast": 2.0}})
+    assert all(r["interval"]["lo"] == r["interval"]["hi"] for r in answer["entity_predictions"])
+
+
 @pytest.mark.parametrize("given", ["Up", " up ", '"up"', "**up**", "`UP`"])
 def test_a_label_written_with_case_quotes_or_markup_is_the_vocabularys(given: str) -> None:
     unit = _unit().model_copy(update={"target_type": "classification", "target_labels": ["up", "down"]})

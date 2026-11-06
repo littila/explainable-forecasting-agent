@@ -2,10 +2,10 @@
 
 A unit's documents may state earlier levels of an entity's yield (a rates snapshot's trailing context: "at the
 2022-06-16 close the 2-year yield was 3.14 percent"). Copied with their dates (`extract.EARLIER_LEVEL`), each gives a
-move up to the cutoff; the largest, scaled to the target's horizon by the square root of time, sets the least
-half-width hypot(A, K x move), and with no move stated it is A. The model writes about +/-10 bps for this target
-whatever the documents say, and an instruction did not change that. A and K were fitted on the FOMC validation set
-(`.local/validation/fomc`, 58 meetings, all resolved before the public units' cutoffs).
+move up to the cutoff; the largest, scaled to the target's horizon by the square root of time (a random walk's spread
+grows with it), is the least half-width, and with no move stated there is none. The model writes about +/-10 bps for
+this target whatever the documents say, and an instruction did not change that. Nothing here is fitted: the rule is
+chosen on its rationale (ARTIFACT_PROVENANCE.md).
 """
 
 from __future__ import annotations
@@ -16,18 +16,12 @@ import re
 from solution import extract, forecast
 from solution.types import Unit
 
-TARGET = re.compile(r"yield_change_bps")
 START = re.compile(r"^start_\w*_pct$")
-A = 28.0
-K = 1.05
-#: The horizons A was fitted on, in weekdays (the validation meetings'); outside them A scales with the square root of
-#: the horizon instead of being carried to a horizon it was never fitted on.
-HORIZONS = (27, 63)
 
 
 def starts(unit: Unit) -> dict[str, tuple[str, float]]:
     """The entities whose earlier levels are asked for, each with its row's level at the cutoff."""
-    if not TARGET.search(unit.target_name):
+    if not unit.yield_change:
         return {}
     out = {}
     for e in unit.entities:
@@ -39,15 +33,15 @@ def starts(unit: Unit) -> dict[str, tuple[str, float]]:
 
 
 def half_width(unit: Unit, earlier: dict[str, extract.Level]) -> float | None:
-    """The least half-width for the unit's intervals, in basis points; None when the target is not a yield change."""
-    if not TARGET.search(unit.target_name) or not unit.resolution_date:
+    """The least half-width for the unit's intervals, in basis points; None when the target is not a yield change or
+    no earlier level is stated."""
+    if not unit.yield_change or not unit.resolution_date:
         return None
     cutoff = str(unit.cutoff_date)[:10]
     horizon = forecast.weekdays(cutoff, str(unit.resolution_date)[:10])
     moves = [abs(level.base - level.value) * 100.0 * math.sqrt(horizon / span) for level in earlier.values()
              if (span := forecast.weekdays(level.period, cutoff)) > 0]
-    a = A * math.sqrt(horizon / min(max(horizon, HORIZONS[0]), HORIZONS[1])) if horizon > 0 else A
-    return math.hypot(a, K * max(moves, default=0.0))
+    return max(moves) if moves and horizon > 0 else None
 
 
 def widen(blocks: dict[str, dict], half: float) -> dict[str, dict]:

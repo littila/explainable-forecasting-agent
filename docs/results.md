@@ -9,7 +9,8 @@ units for build c4.
 
 ## Development leaderboard
 
-Analysis score (0 to 1) and leaderboard value (`-0.27 + 1.27 x analysis`), scorer 5.2.2:
+Analysis score (0 to 1) and leaderboard value (`-0.27 + 1.27 x analysis`), scorer 5.2.2 until 9 October, 5.3.0 after
+(the board restarted at the switch, so 980107 is the entry that stood on it):
 
 | Date | Submission | Build | Main change | Analysis | Leaderboard |
 |---|---|---|---|---|---|
@@ -20,7 +21,7 @@ Analysis score (0 to 1) and leaderboard value (`-0.27 + 1.27 x analysis`), score
 | 5 Oct | 962251 | c2 | growth prior from copied levels, merged samples, House throttling | 0.5906 | +0.4801 |
 | 7 Oct | 966184 | c3 | spanning merge, revision priors, filing signals, yield floor | **0.6634** | **+0.5725** |
 | 7 Oct | 967146 | c4 | simplification: 44% less code | 0.6560 | +0.5631 |
-| | | c5 | generalization fixes, task facts in the prompt | pending | |
+| 12 Oct | 980107 | c6 | c5's generalization fixes (c5 itself was not uploaded), zero-width intervals widened, every row of admitted documents read | 0.6527 | +0.5590 |
 
 966184 placed 6th on the Development leaderboard when it was scored. c3 to c4 removed 2,464 lines at the same score;
 the 0.007 gap is one unit, a sampled ranking whose local runs spread from 0.755 to 0.878 Spearman.
@@ -82,12 +83,34 @@ except the prompt change left the practice answers, citations and reasons identi
 |---|---|
 | One unreadable series emptied every prior | Isolated per entity; monthly dates and one-release tables handled |
 | `exchange_rate` matched "change"; growth from a rate field; basis points on a series already in bps | Whole-word triggers; level bases only; percent series only |
-| A 28 bps floor on any yield horizon | Scaled outside the horizons it was fitted on |
+| A 28 bps floor on any yield horizon | Scaled outside the horizons it was fitted on; for the Final, replaced by a rule with no fitted constant |
 | Unanswered rows got a zero-width interval and an arbitrary label | Asked once more when they have no prior; else the answered rows' width and label |
 | The prompt never stated the label definitions or the resolution date | A task-facts block opens every task |
 
 ## Final
 
-The Final runs from 13 to 25 October 2026 on a larger held-out set, mostly in families without a practice
-counterpart, with documents dated after the cutoff and documents with edited values in some corpora, and a reasoning
-grade on the submitted reasons. Standing to be added.
+The Final entry, image `ghcr.io/littila/t4-solution:final-cabd97f` built from the code in this repository, ranked
+**8th of 63** teams with a final score of **0.4441** (`-0.27 + 1.27 x analysis + 0.25 x reasoning`, on held-out units
+mostly in families without a practice counterpart; the organisers publish no breakdown). The top three scored 0.4892,
+0.4857 and 0.4768 ([leaderboard](https://www.agenthon.net/#leaderboard), published 3 November 2026).
+
+What changed for the Final, and why, is in the [README](../README.md#final) and [provenance.md](provenance.md). Before
+the upload the build was checked locally on the practice units, three runs through the submission entrypoint and one
+through the image as the platform runs it (12 October 2026; 0 false claims, at most 21 of 25 requests and 144 seconds):
+
+| Unit | Local estimate, 3 CLI runs | Image run | Raw metrics (3 runs) |
+|---|---|---|---|
+| auction-btc-202411-us7 | 0.507 | 0.521 | MAE 0.136, IS 0.535 |
+| cotpos-202411-us10 | 0.698 | 0.693 | ranking quality 0.796, IS 31.6 |
+| cpicomp-202410-us11 | 0.610 | 0.613 | MAE 0.684, IS 4.64 |
+| credit-event-2023 | 0.750 | 0.750 | accuracy 0.875, IS 3.02 |
+| eps-growth-2024Q3-banks | 0.652 | 0.656 | MAE 8.39, IS 92.5 |
+| eps-yoy-2023Q2-mixed | 0.937 | 0.951 | accuracy 1.000, IS 1.4 |
+| fomc-curve-20220728 | 0.555 | 0.561 | MAE 77.1, IS 395 |
+| fomc-curve-20240918 | 0.536 | 0.532 | MAE 60.4, IS 181 |
+| macrorev-20240930-us6 | 0.583 | 0.583 | accuracy 0.583, IS 1,963 |
+| postearn-20240201-megacap | 0.732 | 0.731 | accuracy 0.667, IS 119 |
+| **mean** | **0.656** | **0.659** | |
+
+c6 scored 0.656 locally the same day; c5 had scored 0.673 four days earlier on replies c6 reproduces exactly, so the
+difference between days is the model's, not the code's.

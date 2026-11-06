@@ -11,7 +11,7 @@
 # The constant platform draws a buildx lint warning and is kept deliberately: a build that
 # forgets `--platform` on an arm64 machine otherwise produces a silently arm64 image, which the
 # contract refuses. Pinning it here makes the required architecture impossible to lose.
-FROM --platform=linux/amd64 python:3.13-slim
+FROM --platform=linux/amd64 python:3.13-slim@sha256:70729b46c69b4f1e97c4822c1af3df53a1476cf5ddc6c087c0c10bc3a5678c2f
 
 # Required on every submission image by the published contract; g0_integrity checks for it.
 LABEL qfbench2.interface_version="2.0"

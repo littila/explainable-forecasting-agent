@@ -15,8 +15,8 @@ Built for **[Agenthon 2026](https://github.com/Agenthon-2026/Agenthon2026-public
 | | |
 |---|---|
 | Development phase, best | analysis score **0.6634**, leaderboard **+0.5725** (6th at submission, 7 Oct 2026) |
-| Final phase | runs 13 to 25 October 2026; standing to be added |
-| Code | Python 3.13, about 3,500 lines in 20 modules, 198 tests |
+| Final phase | **8th of 63** teams, final score **0.4441** (results published 3 Nov 2026; first place 0.4892) |
+| Code | Python 3.13, about 3,500 lines in 21 modules, 213 tests |
 
 ## The task
 
@@ -42,7 +42,8 @@ plus up to three reasons for the unit (premise, mechanism, implication, citation
 (120B-A12B); 25 requests per unit and 4,000 output tokens per request; 600 seconds per unit inside a container; no data
 beyond the unit at inference time.
 
-**Scoring** (scorer 5.2.2). Per unit, `0.7 x prediction quality + 0.3 x interval quality`, both measured against a
+**Scoring** (scorer 5.2.2 in Development until 9 October, then 5.3.0, which also scored the Final; 5.3.0 adds an NLI
+judge that marks a claim false when its passage contradicts it, and counts the first 20 claims per entity). Per unit, `0.7 x prediction quality + 0.3 x interval quality`, both measured against a
 private naive baseline (a perfect answer scores 1, the baseline 0.5), times a penalty for false claims: a claim citing
 another entity's document, stating a figure its span does not contain, or saying nothing. The leaderboard shows
 `-0.27 + 1.27 x analysis`; the Final adds `0.25 x` a reasoning grade on the submitted reasons. A unit that fails the
@@ -97,7 +98,7 @@ The full design, with every component and constant: [docs/design.md](docs/design
 | 962251 | c2 | growth prior from copied levels, merged samples | 0.5906 | +0.4801 |
 | 966184 | c3 | revision priors, filing signals, spanning merge, yield floor | **0.6634** | **+0.5725** |
 | 967146 | c4 | simplification: 44% less code, score held | 0.6560 | +0.5631 |
-| pending | c5 | generalization fixes, task facts in the prompt | | |
+| 980107 | c6 | c5's generalization fixes, zero-width intervals widened, every row of admitted documents read (scorer 5.3.0) | 0.6527 | +0.5590 |
 
 ### What each part is worth
 
@@ -110,19 +111,37 @@ Switched off one at a time on 30 stored runs, change in the 10-unit mean (local 
 | Five samples instead of one | -0.014 |
 | Credit signals read from filings | -0.011 |
 | Intervals spanning the samples | -0.008 |
-| Yield-change interval floor | -0.004 (-0.022 on its unit) |
+| Yield-change interval floor | -0.004 (-0.033 and -0.008 on the two yield units) |
 | Blend of model and prior points (replaced) | +0.002 |
 | Corrective turns, asking again, a level guard (removed) | 0.000 |
 
-### Current build (c5), local runs
+### Final build, local runs
 
-Ten practice units, three runs each through the submission entrypoint: 30 of 30 clean, 0 false claims, at most 24 of
-25 requests and 98 seconds per unit. The local estimate (reconstructed outcomes, stand-in baselines) rose from 0.651
-for c4 to 0.673; per unit in [docs/results.md](docs/results.md).
+Ten practice units, three runs each through the submission entrypoint, then once each through the built image as the
+platform runs it: 40 of 40 clean, 0 false claims, at most 21 of 25 requests and 144 seconds per unit. The local
+estimate (reconstructed outcomes, stand-in baselines) is 0.656 for the Final build and 0.656 for c6 on the same day;
+c5, whose answers c6 reproduces on the same replies, gave 0.673 four days earlier: the model's replies drift
+between days by more than the builds differ. Per unit in [docs/results.md](docs/results.md).
 
 ### Final
 
-The Final runs from 13 to 25 October 2026 on held-out units. Standing to be added.
+The Final entry, image `ghcr.io/littila/t4-solution:final-cabd97f` built from the code in this repository, ranked
+**8th of 63** with a final score of **0.4441** (`-0.27 + 1.27 x analysis + 0.25 x reasoning`, on held-out units; the
+organisers publish no breakdown). The top three scored 0.4892, 0.4857 and 0.4768
+([leaderboard](https://www.agenthon.net/#leaderboard)). Changes for the Final, after the organisers' rulings and a
+review for unseen units:
+
+- **Rules.** The yield-interval floor no longer uses constants fitted on 2015-22 FOMC outcomes (outcomes that may
+  postdate a held-out task's cutoff may not choose or calibrate anything); it is the largest move the documents state,
+  scaled to the horizon by the square root of time. The seed is a constant, as the verification reruns require.
+- **Unseen corpora.** A document whose share of a call was smaller than one fitting window was shown blank: windows
+  are now sized to the share. Hundreds of documents made planning fail and the unit fall back to its floor: a call now
+  shows the latest documents that fit, and a unit no plan fits is asked with its rows alone.
+- **Unseen shapes.** Null manifest labels, corpus files the manifest does not declare (citing one refuses the unit),
+  quoted entity ids with spaces, Markdown tables with outer pipes, basis-point names spelled bp or basis_points, more
+  neutral label words, a revision prior on a change target, and a prior on another scale than the model's point.
+
+Each fix has a test; replays of 60 stored practice runs changed nothing but the yield intervals.
 
 ## Engineering notes
 
@@ -152,7 +171,7 @@ Dockerfile           the submission image (linux/amd64)
 uv sync                      # Python 3.13; installs the organisers' scorer for the tests
 scripts/fetch_units.sh       # the practice units from the official Track 4 repository
 scripts/fetch_tokenizer.sh   # the model's tokenizer, for exact token counts as in the image
-uv run pytest                # 198 tests, about a minute
+uv run pytest                # 213 tests, about a minute
 
 export OPENROUTER_API_KEY=...            # any OpenAI-compatible endpoint serving the model
 scripts/run_unit.sh t4-fomc-curve-20240918

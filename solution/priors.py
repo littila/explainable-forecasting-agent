@@ -26,10 +26,13 @@ import statistics
 from dataclasses import replace
 
 from solution import data, extract, forecast
-from solution.types import Entity, Unit
+from solution.types import BPS, Entity, Unit
 
 DATE = re.compile(r"^\d{4}-\d{2}-\d{2}$")
 PERCENT = {"pct", "percent", "percentage"}
+#: How many of a prior's band widths the model's point may lie from the prior's point and still be the same quantity on
+#: the same scale: an order of magnitude past a 90% band.
+SCALE = 10.0
 PERIOD = re.compile(r"^\d{4}-\d{2}$")
 
 
@@ -94,9 +97,10 @@ def _in_percent(entity: Entity, column: str, last: float) -> bool:
 
 
 def prior(unit: Unit, entity: Entity, rows: list[data.Row]) -> forecast.Forecast | None:
-    """The entity's computed forecast, or None when its history is not found."""
+    """The entity's computed forecast, or None when its history is not found. A revision forecasts the estimate's
+    next level, so a target that is a change takes none from it."""
     if (found := _revision(unit, entity)) is not None:
-        return found
+        return None if unit.change_target else found
     column = _column(unit, entity, rows)
     if column is None:
         return None
@@ -104,7 +108,7 @@ def prior(unit: Unit, entity: Entity, rows: list[data.Row]) -> forecast.Forecast
     if len(points) < forecast.MIN_FIT + 2:
         return None
     if unit.change_target and unit.resolution_date:
-        bps = "bps" in unit.target_name or "bps" in str(entity.features.get("unit", ""))
+        bps = any(BPS.search(x.lower()) for x in (unit.target_name, str(entity.features.get("unit", ""))))
         scale = 100.0 if bps and _in_percent(entity, column[1], points[-1].value) else 1.0
         steps = forecast.steps_between(points, points[-1].date, str(unit.resolution_date))
         return forecast.change(points, steps, scale, unit.interval_level)
@@ -152,17 +156,26 @@ def decided(unit: Unit, f: forecast.Forecast) -> str:
     return f"{f'label {direction}, ' if direction else ''}point_forecast {f.point:.6g}, from {f.method}"
 
 
+def _same_scale(f: forecast.Forecast, model: float) -> bool:
+    """Whether the model's point lies within SCALE band widths of the prior's point; a prior of another quantity or
+    unit (a level for a change, percent for basis points) does not, and leaves the model's forecast as it is."""
+    return not f.hi > f.lo or abs(model - f.point) <= SCALE * (f.hi - f.lo)
+
+
 def combine(unit: Unit, blocks: dict[str, dict], found: dict[str, forecast.Forecast]) -> dict[str, dict]:
     """The model's entity blocks with each entity that has a prior joined to it: the model's point unless the prior
     decides it or the model gave none; the prior's band around the point (for a ranking target its width centred on
     the point, the prior's own offsets carrying its method's drift; else moved to the point and still covering the
     prior's band; a prior with no band takes the model's band moved to the point and stretched to hold the model's
     point); a revision's direction from the point's side of the latest estimate, else the prior's lean; a claim of the
-    last row the prior used."""
+    last row the prior used. A prior that does not decide and is of another scale than the model's point
+    (`_same_scale`) leaves the model's block as it is."""
     out = dict(blocks)
     for e, f in found.items():
         b = dict(out.get(e) or {"claims": []})
         model = b.get("point_forecast")
+        if not f.decides and model is not None and not _same_scale(f, model):
+            continue
         point = f.point if model is None or f.decides else model
         if model is None:
             lo, hi = f.lo, f.hi

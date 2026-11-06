@@ -18,6 +18,19 @@ def test_each_entity_with_its_own_dated_history_gets_a_prior_and_no_other(name, 
     assert len(priors.priors(load_unit(REPO / "units" / name))) == found
 
 
+def test_a_revision_prior_is_not_given_to_a_target_that_is_a_change() -> None:
+    unit = load_unit(REPO / "units/t4-macrorev-20240930-us6")
+    assert len(priors.priors(unit)) == 12
+    changed = unit.model_copy(update={"task_id": "macrorev-as-change", "target_name": "next_estimate_revision_change"})
+    assert not any(f.decides for f in priors.priors(changed).values())
+
+
+def test_a_markdown_table_with_outer_pipes_reads_as_a_plain_one() -> None:
+    from solution import data
+    assert data.cells("| 2024-01 | 0.10 | 0.20 |") == data.cells("2024-01 | 0.10 | 0.20") == ["2024-01", "0.10", "0.20"]
+    assert data.cells("|---|---|") == ["---", "---"]
+
+
 def test_the_series_is_found_by_name_by_target_words_and_as_a_vintage_table() -> None:
     unit = load_unit(REPO / "units/t4-fomc-curve-20240918")
     fomc = priors.priors(unit)["UST10Y"]
@@ -44,6 +57,14 @@ def test_the_model_gives_the_point_and_the_priors_band_moves_to_it_still_coverin
     out = priors.combine(unit, {e: {"claims": [], "point_forecast": 3.0}}, {e: _prior(2.0, 1.5, 2.5)})[e]
     assert out["point_forecast"] == 3.0 and (out["int_lo"], out["int_hi"]) == (1.5, 3.5)
     assert out["spans"] == [{"doc_id": "DOC", "span_start": 0, "span_end": 9}]
+
+
+def test_a_prior_of_another_scale_leaves_the_models_forecast_as_it_is() -> None:
+    unit = load_unit(REPO / "units/t4-cpicomp-202410-us11")
+    index = forecast.Forecast(317.2, 315.9, 318.6, "a level series", [], [])
+    block = {"point_forecast": 0.3, "int_lo": 0.1, "int_hi": 0.5, "claims": []}
+    out = priors.combine(unit, {"CPI_CORE": block}, {"CPI_CORE": index})["CPI_CORE"]
+    assert (out["point_forecast"], out["int_lo"], out["int_hi"]) == (0.3, 0.1, 0.5)
 
 
 def test_a_ranking_keeps_the_models_point_and_takes_the_priors_width() -> None:

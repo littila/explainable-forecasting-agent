@@ -86,3 +86,29 @@ def test_an_entity_with_two_large_filings_is_planned_not_refused() -> None:
     assert gs.user.count("<doc id=") == 3 and "characters left out" in gs.user
     plain = {c.ids[0]: c.user for c in plan.calls(load_unit(REPO / "units/t4-eps-growth-2024Q3-banks"))}
     assert all(c.user == plain[c.ids[0]] for c in calls if c.ids != ["GS"])
+
+
+def _many_documents(n: int) -> "plan.Unit":
+    from solution.types import Doc, Entity, Unit
+    text = "Orders rose and margins held through the quarter as demand stayed firm across the region. " * 60
+    docs = [Doc(doc_id=f"N{k:03d}", doc_date=f"2024-{1 + k % 12:02d}-{1 + k % 28:02d}", text=text, shared=True)
+            for k in range(n)]
+    return Unit(task_id=f"many-{n}", target_type="regression", target_name="x", cutoff_date="2024-12-31",
+                entities=[Entity(entity_id=f"E{k}") for k in range(3)], docs=docs)
+
+
+def test_hundreds_of_documents_show_the_latest_that_fit_none_blank() -> None:
+    unit = _many_documents(500)
+    calls = plan.calls(unit)
+    budget = int(render.CONTEXT_SHARE * render.WINDOW)
+    shown = [d for d in plan.shown(unit, budget - 1)["E0"]]
+    dates = sorted(d.doc_date for d in unit.docs)
+    assert len(shown) < len(unit.docs) and min(d.doc_date for d in unit.docs if d.doc_id in shown) >= dates[-len(shown)]
+    assert all(render.prompt_tokens(c.system + c.user) <= budget for c in calls)
+    assert all("characters left out ...]\n</doc>" not in c.user for c in calls)
+
+
+def test_rows_only_calls_ask_for_every_entity_without_documents() -> None:
+    unit = _many_documents(3)
+    calls = plan.rows_only(unit)
+    assert [c.ids for c in calls] == [["E0", "E1", "E2"]] and "<doc id=" not in calls[0].user

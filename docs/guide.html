@@ -219,19 +219,20 @@ footer{margin-top:56px;padding-top:18px;border-top:1px solid var(--rule);font-si
 
 <main>
 <header class="hero">
-  <div class="eyebrow">Agenthon 2026 &#xB7; Track 4 Explainability &#xB7; build c5 &#xB7; October 2026</div>
+  <div class="eyebrow">Agenthon 2026 &#xB7; Track 4 Explainability &#xB7; Final build final-cabd97f &#xB7; October 2026</div>
   <h1>How the Track 4 agent works</h1>
   <p class="lead">The agent reads one unit's frozen documents and answers every entity row with a label or a number, a 90% interval, quoted evidence and up to three reasons. Code computes what the data can settle. The House model reads the documents, copies figures, forecasts the rest and writes the reasons. This page explains why it is built that way, what each part does, and then follows five practice units through real runs. It describes build c5, which adds the fixes of 8 Oct for units the practice set does not have; the platform figures are still c4's until c5 is uploaded.</p>
   <div class="facts">
+    <div><b>8th of 63</b><span>Final standing, final score 0.4441 (first 0.4892; published 3 Nov 2026)</span></div>
     <div><b>0.673</b><span>c5 local estimate, 10 units &#xD7; 3 (c4: 0.651 local, 0.6560 on the platform)</span></div>
-    <div><b>3,477</b><span>lines in <code>solution/</code>, 20 modules, 198 tests</span></div>
+    <div><b>3,541</b><span>lines in <code>solution/</code>, 21 modules, 213 tests</span></div>
     <div><b>&#x2264; 25</b><span>House requests per unit, enforced (c5 practice runs used at most 24)</span></div>
     <div><b>570 s</b><span>hard deadline on a 600 s card (c5 runs took at most 98 s, c4 209 s)</span></div>
   </div>
 </header>
 
 <section id="task">
-  <h2>What a unit asks<small>The contract the agent works to, scorer 5.2.2</small></h2>
+  <h2>What a unit asks<small>The contract the agent works to, scorer 5.2.2 (5.3.0 from 9 Oct and in the Final)</small></h2>
   <div class="prose">
     <p>A unit is one prediction task: a table of entities (companies, Treasury maturities, futures markets, macro series), one target per row, and a corpus of documents dated on or before the unit's cutoff. The target is a label (<em>classification</em>), a number (<em>regression</em>) or a number the rows are ordered by (<em>ranking</em>). The agent runs once per unit in a container, with the House model as its only language model.</p>
   </div>
@@ -324,7 +325,7 @@ board               = &#x2212;0.27 + 1.27 &#xB7; mean(unit scores)            Fi
     <div class="stage" role="listitem"><span class="num">3</span><span class="name">Compute priors<code>data &#xB7; forecast &#xB7; priors</code></span><span class="who"><span class="chip code">code</span></span><span class="what">Dated table rows become each entity's series; a forecast menu is backtested on it; the result is a point, a 90% band and the row it rests on. A series no method can read costs that entity its prior only.</span></div>
     <div class="stage model-stage" role="listitem"><span class="num">4</span><span class="name">Copy latest levels<code>extract &#xB7; LATEST_LEVEL</code></span><span class="who"><span class="chip model">model</span></span><span class="what">Growth targets with a level base only: the model copies each entity's latest reported level with a quote; code checks it and turns it into a growth prior that decides the point. At most 12 requests.</span></div>
     <div class="stage" role="listitem"><span class="num">5</span><span class="name">Read filing signals<code>signals.py</code></span><span class="who"><span class="chip code">code</span></span><span class="what">Credit-event labels only: a going-concern doubt decides <code>credit_event</code>; an investment-grade rating with no speculative grade decides <code>no_event</code>.</span></div>
-    <div class="stage" role="listitem"><span class="num">6</span><span class="name">Plan the calls<code>plan &#xB7; render &#xB7; prompt</code></span><span class="who"><span class="chip code">code</span></span><span class="what">Group entities that share their own documents, at most 6 per call, each prompt within 40% of a 262K-token window. A group too large for that, or more calls than the requests left, gets its larger documents fitted smaller. The task's facts and the decided forecasts go in the prompt.</span></div>
+    <div class="stage" role="listitem"><span class="num">6</span><span class="name">Plan the calls<code>plan &#xB7; render &#xB7; prompt</code></span><span class="who"><span class="chip code">code</span></span><span class="what">Group entities that share their own documents, at most 6 per call, each prompt within 40% of a 262K-token window. A group too large for that, or more calls than the requests left, gets its larger documents fitted smaller; a call shows at most its budget over 1,000 tokens of documents, an entity with more showing its latest, and a unit no plan fits is asked with its rows alone. The task's facts and the decided forecasts go in the prompt.</span></div>
     <div class="stage model-stage" role="listitem"><span class="num">7</span><span class="name">Ask<code>pipeline._run &#xB7; llm</code></span><span class="who"><span class="chip model">model</span></span><span class="what">Every answer call, sampled 5, 3 or 1 times within 15 requests and what the copies left; up to 4 calls and 200K prompt tokens in flight. An entity no reply answers and with no prior is asked once more.</span></div>
     <div class="stage model-stage" role="listitem"><span class="num">8</span><span class="name">Copy earlier levels<code>extract &#xB7; EARLIER_LEVEL</code></span><span class="who"><span class="chip model">model</span></span><span class="what">Yield-change targets only: the model lists earlier yields that dated sentences state, for the interval floor. Two requests are kept for it.</span></div>
     <div class="stage" role="listitem"><span class="num">9</span><span class="name">Read and merge<code>reply.py</code></span><span class="who"><span class="chip code">code</span></span><span class="what">Parse each reply; per entity keep the median sample of the majority label, with an interval spanning those samples.</span></div>
@@ -341,22 +342,22 @@ board               = &#x2212;0.27 + 1.27 &#xB7; mean(unit scores)            Fi
   <h2>Components<small>What each part does, the constants it rests on, and what it was measured to be worth</small></h2>
 
   <div class="comp" id="c-load">
-    <div class="comp-head"><h3>Load and the embargo</h3><span class="files">corpus.py 148 &#xB7; types.py 89</span></div>
+    <div class="comp-head"><h3>Load and the embargo</h3><span class="files">corpus.py 152 &#xB7; types.py 97</span></div>
     <dl>
       <dt>Job</dt><dd><p>Build the <code>Unit</code>: task id, prompt, target name, type and labels, cutoff and resolution dates, interval level, entities (id, name, features), documents (id, title, date, source, text, manifest label), and the task table as JSON for <code>"task"</code> citations.</p></dd>
-      <dt>Rule</dt><dd><p>A document whose <code>doc_date</code> is missing or later than the cutoff is never constructed. The stale-evidence trap of the Final (post-cutoff documents placed in the corpus) is closed before retrieval, prompting or citation can see it.</p></dd>
+      <dt>Rule</dt><dd><p>A document whose <code>doc_date</code> is missing or later than the cutoff is never constructed. The stale-evidence trap of the Final (post-cutoff documents placed in the corpus) is closed before retrieval, prompting or citation can see it. With a manifest, a corpus file it does not declare is not loaded either: citing it would refuse the unit.</p></dd>
       <dt>Labels</dt><dd><p>Each document is about its <code>entity_ids</code>, or is <code>shared</code>. A document the manifest does not label is treated as market-wide (<code>render.owned</code>).</p></dd>
       <dt>Tolerances</dt><dd><p>Shapes the scorer accepts but no practice unit uses: a vocabulary given only as <code>label_assertions</code>; a document's text in <code>spans</code>, joined by a space as the scorer reads it; a null name; dates with a time part, cut to the day. A document's id is its file name, which is how the scorer resolves a citation. A <code>corpus_ref</code> that names nothing in the corpus (a mount path, <code>./corpus/</code>) reads the whole corpus: which documents an entity may cite is the manifest's to say.</p></dd>
     </dl>
   </div>
 
   <div class="comp" id="c-render">
-    <div class="comp-head"><h3>The view: plain text</h3><span class="files">render.py 111 &#xB7; retrieve.py 89 &#xB7; tokens.py 46</span></div>
+    <div class="comp-head"><h3>The view: plain text</h3><span class="files">render.py 116 &#xB7; retrieve.py 89 &#xB7; tokens.py 46</span></div>
     <dl>
       <dt>Job</dt><dd><p>Show each document as its original text in a <code>&lt;doc id="D3" title date source about&gt;</code> tag, where <code>about</code> is <code>market</code> or the entity ids.</p></dd>
       <dt>Rules</dt><dd><ul>
         <li><b>As written.</b> A table row dated after the cutoff is shown: in a document dated before the cutoff it is a calendar, a projection or a curve by contract month, known on the document's date. Only the computed history leaves such rows out (<code>data.rows</code>).</li>
-        <li><b>Fit by retrieval.</b> A document over its cap (<code>DOC_MAX</code>, or a smaller one the plan sets) has its whitespace collapsed; if still too big, it is cut into windows of about 16,000 characters ending at sentence ends, ranked by BM25 against a query built from the task, and the best windows that fit are shown in document order with <code>[... 41,203 characters left out ...]</code> markers.</li>
+        <li><b>Fit by retrieval.</b> A document over its cap (<code>DOC_MAX</code>, or a smaller one the plan sets) has its whitespace collapsed; if still too big, it is cut into windows of about 16,000 characters (or half its cap, when that is smaller, so a small cap still shows the best passage) ending at sentence ends, ranked by BM25 against a query built from the task, and the best windows that fit are shown in document order with <code>[... 41,203 characters left out ...]</code> markers.</li>
         <li><b>Tokens counted exactly</b> with the Nemotron tokenizer when it is available, else a calibrated estimate that undercounts in under 5% of cases.</li>
       </ul></dd>
       <dt>Constants</dt><dd><div class="consts"><span>WINDOW <b>262,144</b></span><span>CONTEXT_SHARE <b>0.4</b></span><span>PROMPT_RESERVE <b>8,192</b></span><span>DOC_MAX <b>96,665</b> tokens</span><span>WINDOW_CHARS <b>16,000</b></span></div></dd>
@@ -365,9 +366,9 @@ board               = &#x2212;0.27 + 1.27 &#xB7; mean(unit scores)            Fi
   </div>
 
   <div class="comp" id="c-data">
-    <div class="comp-head"><h3>Tables as data</h3><span class="files">data.py 103</span></div>
+    <div class="comp-head"><h3>Tables as data</h3><span class="files">data.py 97</span></div>
     <dl>
-      <dt>Job</dt><dd><p>Read every dated table row before the cutoff as history. A table is a header line of cells followed by rows whose first cell is a date (<code>2024-10</code> or <code>2024-10-22</code>), separated by <code>|</code> or tabs. The header names each cell, lowercased. Rows dated after the cutoff, and columns headed by a later release, are not history and are left out. Every value keeps the span of its row, so a computation can cite exactly the rows it used.</p></dd>
+      <dt>Job</dt><dd><p>Read every dated table row of the admitted documents as history. A table is a header line of cells followed by rows whose first cell is a date (<code>2024-10</code> or <code>2024-10-22</code>), separated by <code>|</code> or tabs. The header names each cell, lowercased; a Markdown row&#x2019;s outer pipes are dropped. The embargo is the document&#x2019;s date, so a row or release column dated after the cutoff in an admitted document is read like any other. Every value keeps the span of its row, so a computation can cite exactly the rows it used.</p></dd>
       <dt>Views</dt><dd><ul>
         <li><code>series(doc, column)</code>: one column's numbers in date order.</li>
         <li><code>vintages(doc)</code>: a vintage table, where columns are <code>as_of_&lt;release date&gt;</code>; per reference period, its estimate as published at each release.</li>
@@ -390,7 +391,7 @@ board               = &#x2212;0.27 + 1.27 &#xB7; mean(unit scores)            Fi
   </div>
 
   <div class="comp" id="c-priors">
-    <div class="comp-head"><h3>Priors and the two rules</h3><span class="files">priors.py 189</span></div>
+    <div class="comp-head"><h3>Priors and the two rules</h3><span class="files">priors.py 202</span></div>
     <dl>
       <dt>Finding a series</dt><dd><p>From the data, in this order: a vintage table in the entity's own documents whose period appears in its row, with a release date after the cutoff (a <em>revision</em>); else a dated column named as the entity, by its name or a text value of its row such as a series id, in its own or the market-wide documents; else, in its own documents only, the one column whose name's words all appear in the target's name. No match, or a tie, gives no prior. An entity whose series a method cannot read gets none; the others keep theirs.</p></dd>
       <dt>Change targets</dt><dd><p>A target is a change when its name has the whole word <em>change</em>, <em>growth</em>, <em>return</em> or <em>returns</em> (<code>exchange_rate</code> and <code>return_on_equity</code> are not). Its series is forecast as a change to the resolution date, in basis points when the target says so and the series is in percent: its column says so, or a percent field of the entity's row (<code>start_yield_pct</code>) holds a value of its size.</p></dd>
@@ -426,18 +427,18 @@ board               = &#x2212;0.27 + 1.27 &#xB7; mean(unit scores)            Fi
   </div>
 
   <div class="comp" id="c-moves">
-    <div class="comp-head"><h3>Yield floor</h3><span class="files">moves.py 63</span></div>
+    <div class="comp-head"><h3>Yield floor</h3><span class="files">moves.py 57</span></div>
     <dl>
-      <dt>Job</dt><dd><p>For a <code>yield_change_bps</code> target, a least half-width for every interval: the largest move the documents state (from the copied earlier levels), scaled to the horizon by the square root of time.</p></dd>
-      <dt>Formula</dt><dd><p><code>half = hypot(a, K &#xB7; max |level_cutoff &#x2212; level_earlier| &#xB7; 100 &#xB7; &#x221A;(horizon / span))</code>, with spans and horizon in business days; <code>a</code> alone when no move is stated. <code>a = A</code> within the 27 to 63 weekdays A was fitted on; outside them A scales with the square root of the horizon over the nearer end, so a two-day horizon is not given a seven-week floor.</p></dd>
-      <dt>Constants</dt><dd><div class="consts"><span>A <b>28 bps</b></span><span>K <b>1.05</b></span><span>HORIZONS <b>27 to 63</b> weekdays</span></div><p class="note">Fitted on 58 past FOMC meetings built from public FRED data, all resolved before the practice units' cutoffs.</p></dd>
+      <dt>Job</dt><dd><p>For a yield target in basis points (<code>bps</code>, <code>bp</code> or <code>basis_points</code> in its name), a least half-width for every interval: the largest move the documents state (from the copied earlier levels), scaled to the horizon by the square root of time.</p></dd>
+      <dt>Formula</dt><dd><p><code>half = max |level_cutoff &#x2212; level_earlier| &#xB7; 100 &#xB7; &#x221A;(horizon / span)</code>, with spans and horizon in business days; no floor when no earlier level is stated.</p></dd>
+      <dt>Constants</dt><dd><p class="note">None. An earlier form added constants fitted on 58 past FOMC meetings (A 28 bps, K 1.05, horizons 27 to 63 weekdays). The organisers ruled that outcomes which may postdate a held-out task&#x2019;s cutoff may not choose or calibrate anything, so the Final build keeps only the rule.</p></dd>
       <dt>Why</dt><dd><p>The model writes about &#xB1;10 bps for a yield change whatever the documents say, and an instruction did not change that.</p></dd>
-      <dt>Evidence</dt><dd><p>&#x2212;0.004 on the mean, &#x2212;0.022 on fomc-2022 and &#x2212;0.014 on fomc-2024 without it (IS 328 &#x2192; 1,166 and 198 &#x2192; 566). Both practice horizons (38 and 34 weekdays) are inside the fitted range, so their floors are unchanged.</p></dd>
+      <dt>Evidence</dt><dd><p>&#x2212;0.004 on the mean, &#x2212;0.033 on fomc-2022 and &#x2212;0.008 on fomc-2024 without it, replayed on 12 stored runs (IS 400 &#x2192; 1,277 and 181 &#x2192; 486). The fitted form scored the same estimate on both units: their interval legs are capped by the prediction leg.</p></dd>
     </dl>
   </div>
 
   <div class="comp" id="c-plan">
-    <div class="comp-head"><h3>Plan</h3><span class="files">plan.py 167</span></div>
+    <div class="comp-head"><h3>Plan</h3><span class="files">plan.py 194</span></div>
     <dl>
       <dt>Job</dt><dd><p>Split the roster into the fewest answer calls. Entities that share a document of their own (one not every entity has) go in the same call. Each call's prompt holds the prompt text, the documents every entity shares and the batch's own documents, within 40% of the window.</p></dd>
       <dt>Output budget</dt><dd><p>An entity plans on 460 reply tokens (a 160-token block and its own 300-token reason), a call on 2 shared reasons besides, within 85% of the 4,000-token cap: <code>(3,400 &#x2212; 600) / 460 = 6</code> entities per call at most.</p></dd>
@@ -467,7 +468,7 @@ Using ONLY the frozen evidence corpus ...
   </div>
 
   <div class="comp" id="c-calls">
-    <div class="comp-head"><h3>Calls and samples</h3><span class="files">pipeline.py 351 &#xB7; llm.py 322</span></div>
+    <div class="comp-head"><h3>Calls and samples</h3><span class="files">pipeline.py 355 &#xB7; llm.py 322</span></div>
     <dl>
       <dt>Client</dt><dd><p>OpenAI-compatible chat completions, plain text in and out (<code>ask_text</code>). Temperature 0, top_p 0.95, seed from <code>QFBENCH_SEED</code>. On the House route, thinking is off (<code>enable_thinking: false</code>). Development runs the same model, Nemotron 3 Super, on OpenRouter.</p></dd>
       <dt>Retries</dt><dd><p>Rate limits and server errors (429, 5xx) wait 5, 15, 30, 60 s, or the server's Retry-After. Connection failures are retried; after 3 unreachable calls in a row the House is taken as down and the unit is answered from what is in hand. No retry starts with under 60 s left.</p></dd>
@@ -490,7 +491,7 @@ Using ONLY the frozen evidence corpus ...
   </div>
 
   <div class="comp" id="c-cite">
-    <div class="comp-head"><h3>Citations and assembly</h3><span class="files">cite.py 195 &#xB7; assemble.py 236</span></div>
+    <div class="comp-head"><h3>Citations and assembly</h3><span class="files">cite.py 195 &#xB7; assemble.py 251</span></div>
     <dl>
       <dt>Placing a quote</dt><dd><p>Only in the documents the entity may cite (its own and the shared ones), in their original text. Matching folds case, quote marks, dashes, invisible characters and whitespace runs; table cells may also match with whitespace ignored. Whole quotes across all those documents are tried before openings (at least 40 characters), then the longest piece around "...". The longest opening is found by bisection over the quote's word ends, since an opening that is found means every shorter one is too. A <code>key: value</code> quote of the entity's own row becomes a citation of that key in the task table.</p></dd>
       <dt>Claim text</dt><dd><p>The passage's own words, at most 600 characters, never the model's paraphrase.</p></dd>
@@ -855,13 +856,13 @@ int_hi: 25
       <li><h3>A copy call finds an older yield, and the floor follows from it</h3>
         <p>After the answer calls, the earlier-level copy is shown only the two sentences that state a figure for a date before the cutoff. Its first reply copied the cutoff level itself; code rejected it ("the period is not a date before the cutoff") and sent it back once:</p>
 <pre>UST2Y | value: 4.77 | period: 2024-07-01 | quote: "4.77 percent close on 2024-07-01"</pre>
-        <p>That is a 118 bps move over 58 weekdays. Scaled to the 34-weekday horizon: 118 &#xB7; &#x221A;(34/58) = 90.35 bps. The least half-width is <code>hypot(28, 1.05 &#xB7; 90.35) = 98.9</code> bps, applied to every maturity.</p></li>
+        <p>That is a 118 bps move over 58 weekdays. Scaled to the 34-weekday horizon: 118 &#xB7; &#x221A;(34/58) = 90.35 bps. That is the least half-width, applied to every maturity.</p></li>
       <li><h3>From reply to answer</h3>
         <div class="tw"><table><thead><tr><th>Stage</th><th>UST2Y</th><th>UST10Y</th></tr></thead><tbody>
           <tr><td>Merged model point, spanning interval</td><td class="mono">15, [&#x2212;20, 60]</td><td class="mono">5, [&#x2212;15, 20]</td></tr>
           <tr><td>Prior</td><td class="mono">0, [&#x2212;52.89, 52.89]</td><td class="mono">0, [&#x2212;33.80, 33.80]</td></tr>
           <tr><td>Combine: model point, prior band moved to it and still covering the prior's band</td><td class="mono">15, [&#x2212;52.89, 67.89]</td><td class="mono">5, [&#x2212;33.80, 38.80]</td></tr>
-          <tr><td><b>Yield floor &#xB1;98.9 &#x2192; submitted</b></td><td class="mono"><b>15, [&#x2212;83.91, 113.91]</b></td><td class="mono"><b>5, [&#x2212;93.91, 103.91]</b></td></tr>
+          <tr><td><b>Yield floor &#xB1;90.35 &#x2192; submitted</b></td><td class="mono"><b>15, [&#x2212;75.35, 105.35]</b></td><td class="mono"><b>5, [&#x2212;85.35, 95.35]</b></td></tr>
         </tbody></table></div>
         <p>Every entity cites the same 65-character D3 row; the model's claim and the prior's anchor coincide, so it appears once. Of 18 reasons written across the samples, 3 were kept, all citing the snapshot: the 50 bp cut leaves the 2-year 128.5 bps under the policy midpoint; the projections show a shallower path than markets priced; market-implied paths are more aggressive than the Committee's.</p></li>
       <li><h3>Outcome</h3>
@@ -988,13 +989,16 @@ int_hi: -2.0
     <li>No code branches on unit ids or family slugs.</li>
   </ul></div>
 
+  <h3>Final result</h3>
+  <div class="prose"><p>The Final entry, image <code>ghcr.io/littila/t4-solution:final-cabd97f</code> built from this repository&#x2019;s code, ranked <b>8th of 63</b> with a final score of <b>0.4441</b> (&#x2212;0.27 + 1.27 &#xB7; analysis + 0.25 &#xB7; reasoning, on held-out units; no breakdown is published). Before the upload it scored 0.656 locally over three runs per practice unit and 0.659 through the image, with 0 false claims; c6, the last Development entry, scored 0.6527 on the platform (980107, scorer 5.3.0).</p></div>
+
   <h3>What the Final adds</h3>
   <div class="prose"><ul>
     <li>Many families with no published counterpart, across all three target types; 3 to 30 entity rows per unit.</li>
     <li>Documents dated after the cutoff placed in corpora, and documents with an edited value, where the truth is what the documents support.</li>
     <li>Reruns of top entries on fresh seeds, compared for reproducibility; canary strings (in <code>card.toml</code>) scored as contamination anywhere in the output.</li>
     <li>The reasoning grade, 0.25 of the final score, on the units graded for reasoning.</li>
-    <li>Final resource limits (time, requests, output, context window) to be published before 13 Oct.</li>
+    <li>Final resource limits, as published: 600 s per unit within 24 hours for the run, 25 requests, 4,000 output tokens, a 262,144-token context, at most 12 entities per unit.</li>
   </ul></div>
 </section>
 

@@ -36,7 +36,7 @@ from solution.types import Unit
 REASON = re.compile(r"^\s*<reason\b[^>]*>\s*$", re.IGNORECASE)
 #: A reply's reasons section opens; a run of several calls has one per call.
 SECTION = re.compile(r"^\s*<reasons>\s*$", re.IGNORECASE)
-ENTITY = re.compile(r'^\s*<entity\s+id\s*=\s*"?([^">\s]+)"?\s*>\s*$', re.IGNORECASE)
+ENTITY = re.compile(r'^\s*<entity\s+id\s*=\s*"?([^">]*[^">\s])"?\s*>\s*$', re.IGNORECASE)
 CLOSE = re.compile(r"^\s*</(reason|entity)>\s*$", re.IGNORECASE)
 FIELD = re.compile(r"^\s*(premise|mechanism|implication|scope|citation|claim|reasoning|label|point_forecast|int_lo|int_hi)\s*:\s*"
                    r"(.*)$", re.IGNORECASE)

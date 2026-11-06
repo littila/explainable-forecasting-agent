@@ -76,6 +76,24 @@ def test_a_unit_in_shapes_the_practice_units_do_not_use_still_loads(tmp_path) ->
     assert unit.entities[0].name == "" and all(e.doc_ids for e in unit.entities)
 
 
+def test_a_null_label_loads_and_a_file_the_manifest_does_not_declare_is_left_out(tmp_path) -> None:
+    import shutil
+
+    from solution.corpus import load_unit
+
+    unit_dir = tmp_path / "unit"
+    shutil.copytree(REPO / "units/t4-eps-yoy-2023Q2-mixed", unit_dir)
+    manifest = json.loads((unit_dir / "manifest.json").read_text())
+    entry = next(f for f in manifest["files"] if f.get("role") == "corpus")
+    entry["entity_ids"] = None
+    (unit_dir / "manifest.json").write_text(json.dumps(manifest))
+    first = min((unit_dir / "corpus").glob("*.json"))
+    (unit_dir / "corpus" / "UNDECLARED_DOC.json").write_text(first.read_text())
+    unit = load_unit(unit_dir)
+    ids = {d.doc_id for d in unit.docs}
+    assert "UNDECLARED_DOC" not in ids and pathlib.Path(entry["path"]).stem in ids
+
+
 def test_the_deadline_follows_the_cards_time_limit(monkeypatch, tmp_path) -> None:
     monkeypatch.delenv("T4_HARD_DEADLINE_SEC", raising=False)
     unit = REPO / "units/t4-fomc-curve-20240918"

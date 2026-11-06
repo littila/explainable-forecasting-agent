@@ -54,11 +54,11 @@ CORRECTION = ("Your reply needs fixing: {{issues}}. Reply again in full, one lin
               "{which} value as printed, and the passage that states it copied exactly from the documents.")
 ISO_DATE = re.compile(r"\b\d{4}-\d{2}-\d{2}\b")
 SENTENCE_END = re.compile(r"(?<=[.;])\s+")
-NONE = re.compile(r"^\W*([^\s|]+)\s*\|\s*none\W*$", re.IGNORECASE)
+NONE = re.compile(r"^\W*([^|]*?[^\s|])\s*\|\s*none\W*$", re.IGNORECASE)
 DATE = re.compile(r"^\d{4}-\d{2}-\d{2}$")
 #: A number in a quote, with a leading-dot decimal as filings print it (".97").
 NUMBER = re.compile(r"\d[\d,]*(?:\.\d+)?|\.\d+")
-LINE = re.compile(r'^\W*([^\s|]+)\s*\|\s*value:\s*([^|]+?)\s*\|\s*period:\s*([^|]*?)\s*\|\s*quote:\s*["“](.+)["”]\s*\W*$')
+LINE = re.compile(r'^\W*([^|]*?[^\s|])\s*\|\s*value:\s*([^|]+?)\s*\|\s*period:\s*([^|]*?)\s*\|\s*quote:\s*["“](.+)["”]\s*\W*$')
 
 
 @dataclass(frozen=True)

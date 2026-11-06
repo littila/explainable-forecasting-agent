@@ -10,6 +10,8 @@ with room, the calls first given even shares of the roster; a call's entities, a
 group larger than a call is cut in roster order. A group whose documents together exceed the budget (an entity with two
 large filings, a filing about two entities) has its larger documents fitted to a smaller cap, the largest at which the
 group fits (`doc_caps`); the render fits each document on its own to `render.DOC_MAX`, which holds one large filing.
+An entity with more documents than a call can show at MIN_DOC tokens each shows its latest that many (`shown`); the
+others stay citable.
 """
 
 from __future__ import annotations
@@ -28,6 +30,9 @@ BATCH_MAX = 16
 #: plans on its block and its own reason; a call on SHARED reasons besides (6 entities a call; 3 reasons on one).
 PER_REASON = 300
 PER_BLOCK = 160
+#: The least a shown document is given, its tag included: about a page of text. A call holds at most its budget over
+#: this many documents, so hundreds of short ones are not each cut to nothing (or past what any cap fits).
+MIN_DOC = 1_000
 PER_ENTITY = PER_BLOCK + PER_REASON
 SHARED = 2
 #: Tokens a fitted document may take beyond its cap: its <doc> tag and gap markers.
@@ -134,9 +139,9 @@ def batches(unit: Unit, per_entity: int, overhead: int, reserve: int = 0, *, gro
     documents, `reserve` the reply tokens every call spends besides its entities (a reply's reasons). `grouped=False`
     places each entity on its own (lab v4.8). With `most_calls`, documents are fitted smaller until the calls are no
     more than that, as far as the output plan allows. Raises when a group's documents exceed the budget even fitted."""
-    own = {e.entity_id: render.owned(unit, e.entity_id) for e in unit.entities}
-    size = {d.doc_id: render.prompt_tokens(render.rendered(unit, frozenset({d.doc_id}))) for d in unit.docs}
     budget = int(render.CONTEXT_SHARE * render.WINDOW) - overhead
+    own = shown(unit, budget)
+    size = {d.doc_id: render.prompt_tokens(render.rendered(unit, frozenset({d.doc_id}))) for d in unit.docs}
     most = min(BATCH_MAX, max(1, (int(OUTPUT_SHARE * MAX_OUTPUT) - reserve) // per_entity))
     parts = groups(own, most) if grouped else [[e] for e in own]
     capped = doc_caps(parts, own, size, budget)
@@ -153,6 +158,27 @@ def batches(unit: Unit, per_entity: int, overhead: int, reserve: int = 0, *, gro
             for b in bins(parts, own, size, budget, most)]
 
 
+def shown(unit: Unit, budget: int) -> dict[str, frozenset[str]]:
+    """Each entity's documents as its call shows them: all of them, or when they are more than `budget` // MIN_DOC,
+    the latest that many (the most recent carry the latest information)."""
+    most = max(1, budget // MIN_DOC)
+    date = {d.doc_id: d.doc_date for d in unit.docs}
+    out = {}
+    for e in unit.entities:
+        docs = render.owned(unit, e.entity_id)
+        out[e.entity_id] = docs if len(docs) <= most else frozenset(
+            sorted(docs, key=lambda d: (date[d], d), reverse=True)[:most])
+    return out
+
+
+def rows_only(unit: Unit, decided: dict[str, str] | None = None) -> list[Call]:
+    """Calls that show the entity rows and no document, BATCH_MAX entities each: the answer when no plan fits."""
+    system, ids = prompt.system(unit), [e.entity_id for e in unit.entities]
+    parts = [ids[k:k + BATCH_MAX] for k in range(0, len(ids), BATCH_MAX)]
+    return [Call("" if len(parts) == 1 else f"b{k}-", part, system, prompt.user(unit, part, frozenset(), decided))
+            for k, part in enumerate(parts, 1)]
+
+
 def calls(unit: Unit, decided: dict[str, str] | None = None, most_calls: int | None = None) -> list[Call]:
     """The unit's answer calls, named as the lab names them ("" for a single call, else "b1-", "b2-", ...), with the
     forecasts code decides shown on their entities' lines (`decided`), at most `most_calls` of them where the output
@@ -162,6 +188,7 @@ def calls(unit: Unit, decided: dict[str, str] | None = None, most_calls: int | N
     overhead = render.prompt_tokens(system + prompt.user(unit, every, frozenset(), decided))
     plan = batches(unit, PER_ENTITY, overhead, reserve=SHARED * PER_REASON, most_calls=most_calls)
     if len(plan) == 1:
-        return [Call("", plan[0].entities, system, prompt.user(unit, plan[0].entities, None, decided, plan[0].caps))]
+        return [Call("", plan[0].entities, system, prompt.user(unit, plan[0].entities, plan[0].docs, decided,
+                                                                plan[0].caps))]
     return [Call(f"b{k}-", b.entities, system, prompt.user(unit, b.entities, b.docs, decided, b.caps))
             for k, b in enumerate(plan, 1)]

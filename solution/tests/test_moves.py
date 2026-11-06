@@ -28,8 +28,8 @@ def test_the_least_half_width_scales_the_largest_stated_move_to_the_horizon() ->
                            extract.EARLIER_LEVEL)[0]["UST10Y"]
     horizon = forecast.weekdays("2022-07-28", str(UNIT.resolution_date))
     move = 60.0 * math.sqrt(horizon / forecast.weekdays("2022-06-16", "2022-07-28"))
-    assert moves.half_width(UNIT, {"UST10Y": level}) == pytest.approx(math.hypot(moves.A, moves.K * move))
-    assert moves.half_width(UNIT, {}) == moves.A
+    assert moves.half_width(UNIT, {"UST10Y": level}) == pytest.approx(move)
+    assert moves.half_width(UNIT, {}) is None
     assert moves.half_width(load_unit(REPO / "units/t4-cotpos-202411-us10"), {}) is None
 
 
@@ -49,8 +49,8 @@ def test_of_several_stated_earlier_levels_the_oldest_is_kept() -> None:
     assert set(got) == {"UST2Y"} and (got["UST2Y"].value, got["UST2Y"].period) == (4.77, "2024-07-01")
 
 
-def test_the_least_half_width_shrinks_for_a_horizon_shorter_than_it_was_fitted_on() -> None:
-    unit = load_unit(REPO / "units/t4-fomc-curve-20240918")
-    assert moves.half_width(unit, {}) == pytest.approx(moves.A)
-    short = unit.model_copy(update={"resolution_date": "2024-09-23"})
-    assert moves.half_width(short, {}) == pytest.approx(moves.A * (2 / moves.HORIZONS[0]) ** 0.5)
+@pytest.mark.parametrize(("name", "is_yield_change"), [
+    ("yield_change_bps_intermeeting", True), ("yield_move_bp", True), ("ten_year_yield_basis_points", True),
+    ("yield_level_pct", False), ("eps_yoy_growth_pct", False)])
+def test_a_yield_change_is_a_yield_in_basis_points_by_whole_words(name: str, is_yield_change: bool) -> None:
+    assert UNIT.model_copy(update={"target_name": name}).yield_change is is_yield_change

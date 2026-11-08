@@ -65,6 +65,12 @@ class _FakeClient:
         return "fake"
 
 
+#: Pins figures measured in the model's own token counts: skipped when the tokenizer is not available
+#: (`scripts/fetch_tokenizer.sh` fetches it; CI does).
+needs_tokenizer = pytest.mark.skipif(render.counting() != "exact",
+                                     reason="needs the model's tokenizer (scripts/fetch_tokenizer.sh)")
+
+
 def _combined(unit: Unit, entity_id: str, model: float) -> float:
     """The point the answer gives an entity whose reply says `model`: its prior's when the prior decides it."""
     found = priors.priors(unit).get(entity_id)
@@ -323,6 +329,7 @@ def test_copies_leave_the_answer_calls_their_share(monkeypatch, tmp_path) -> Non
     assert made.count("answer") >= len(unit.entities) and len(made) <= llm.MAX_REQUESTS
 
 
+@needs_tokenizer
 def test_an_entity_with_no_reply_and_no_prior_is_asked_once_more(monkeypatch, tmp_path) -> None:
     unit = load_unit(REPO / "units/t4-postearn-20240201-megacap")
     first = unit.entities[0].entity_id

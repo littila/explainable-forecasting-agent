@@ -2,10 +2,18 @@ import itertools
 import pathlib
 import re
 
+import pytest
+
 from solution import render
 from solution.corpus import load_unit
 
 REPO = pathlib.Path(__file__).resolve().parents[2]
+
+
+#: Pins figures measured in the model's own token counts: skipped when the tokenizer is not available
+#: (`scripts/fetch_tokenizer.sh` fetches it; CI does).
+needs_tokenizer = pytest.mark.skipif(render.counting() != "exact",
+                                     reason="needs the model's tokenizer (scripts/fetch_tokenizer.sh)")
 
 
 def test_every_document_is_shown_as_its_original_text_in_its_doc_tag() -> None:
@@ -22,6 +30,7 @@ def test_an_unlabelled_document_is_taken_as_market_wide() -> None:
     assert render.owned(unit, "UST10Y") == frozenset(d.doc_id for d in unit.docs)
 
 
+@needs_tokenizer
 def test_fit_keeps_text_that_fits_and_collapses_whitespace_before_cutting() -> None:
     short = "Revenue rose.   Costs fell."
     assert render.fit(short, "revenue", 10_000) is short

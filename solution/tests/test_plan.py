@@ -1,11 +1,20 @@
 import pathlib
 
+import pytest
+
 from solution import plan, render
 from solution.corpus import load_unit
 
 REPO = pathlib.Path(__file__).resolve().parents[2]
 
 
+#: Pins figures measured in the model's own token counts: skipped when the tokenizer is not available
+#: (`scripts/fetch_tokenizer.sh` fetches it; CI does).
+needs_tokenizer = pytest.mark.skipif(render.counting() != "exact",
+                                     reason="needs the model's tokenizer (scripts/fetch_tokenizer.sh)")
+
+
+@needs_tokenizer
 def test_filing_units_answer_one_entity_a_call_within_the_budget() -> None:
     unit = load_unit(REPO / "units/t4-eps-yoy-2023Q2-mixed")
     calls = plan.calls(unit)

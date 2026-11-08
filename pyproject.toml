@@ -5,7 +5,7 @@ description = "An LLM agent that forecasts labels and values with 90% intervals 
 readme = "README.md"
 license = "MIT"
 requires-python = ">=3.13"
-authors = [{ name = "Zhanibek" }]
+authors = [{ name = "Zhanibek Darimbek" }]
 # The agent's whole runtime, pinned as in the submission image (solution/requirements.txt).
 dependencies = [
   "openai==3.16.2",

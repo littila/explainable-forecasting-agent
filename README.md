@@ -3,6 +3,15 @@
 [![tests](https://github.com/littila/explainable-forecasting-agent/actions/workflows/ci.yml/badge.svg)](https://github.com/littila/explainable-forecasting-agent/actions/workflows/ci.yml)
 [![license: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 
+> **For reviewers.** Solo entry, **8th of 63** in [Agenthon 2026](https://github.com/Agenthon-2026/Agenthon2026-public)
+> Track 4 (Explainability), a competition whose workshop is held at NeurIPS 2026. An LLM agent under hard budgets (one
+> model, 25 requests and 600 seconds per task) that forecasts labels, values and rankings from frozen corpora of SEC
+> filings and Fed, Treasury, BLS and CFTC data, and quotes the passage behind every number verbatim. Worth a look: code
+> computes what the data settles and the model fills in the rest; every component was kept or cut by an ablation; a
+> valid answer is written before the first model call. Start with [docs/design.md](docs/design.md), then
+> [`solution/pipeline.py`](solution/pipeline.py) and [`solution/plan.py`](solution/plan.py). Developed privately in
+> September and October 2026 (107 commits); this repository is the cleaned release of the code that ran in the Final.
+
 An LLM agent that answers forecasting questions about companies, bonds and macro series from a frozen corpus of
 financial documents, and explains every number it submits. For each entity in a task it gives a label or a value, a 90%
 prediction interval, quoted evidence placed verbatim in the source documents, and up to three graded reasons. Code
@@ -15,7 +24,7 @@ Built for **[Agenthon 2026](https://github.com/Agenthon-2026/Agenthon2026-public
 | | |
 |---|---|
 | Development phase, best | analysis score **0.6634**, leaderboard **+0.5725** (6th at submission, 7 Oct 2026) |
-| Final phase | **8th of 63** teams, final score **0.4441** (results published 3 Nov 2026; first place 0.4892) |
+| Final phase | **8th of 63** teams (solo entry), final score **0.4441** (results published 3 Nov 2026; first place 0.4892) |
 | Code | Python 3.13, about 3,500 lines in 21 modules, 213 tests |
 
 ## The task
@@ -142,6 +151,25 @@ review for unseen units:
   neutral label words, a revision prior on a change target, and a prior on another scale than the model's point.
 
 Each fix has a test; replays of 60 stored practice runs changed nothing but the yield intervals.
+
+## Where the points went, and what I would do next
+
+The organisers publish the final score without its parts, so this is a hypothesis from the practice-unit evidence.
+
+- **Held-out families.** At the Development analysis score (about 0.65) the analysis term alone would give 0.556, so
+  the held-out analysis score was lower, the reasoning grade was low, or both. The likeliest loss is the families with no
+  practice counterpart. Where a unit has a dated series, code backtests a forecast and its interval; where it has none,
+  the model's own forecast and interval stand, and on the practice units those were near the naive baseline: yield
+  changes sized at a tenth to a quarter of the realised move, post-earnings intervals of about +-2% around a 19% move.
+- **The reasoning grade** (0.25 of the final score). Reasons were chosen to pass the organisers' checks and to cover the
+  roster, but nothing local graded their quality, so this term was never measured.
+- **Measurement.** The free endpoint used in development drifted between days by more than most changes (0.673 and
+  0.656 four days apart, for two builds whose answers are identical on identical replies), so late changes were judged by replaying stored replies, and forecasting
+  changes smaller than the drift could not be told apart.
+
+Next: calibrate the intervals of model-only targets from evidence inside the unit (the spread of samples, ranges the
+documents state) rather than the model's stated band; generate synthetic units in shapes the practice set lacks, to test
+generalisation before submitting; and build a reasoning grader proxy, so the 0.25 term can be measured and climbed.
 
 ## Engineering notes
 
